@@ -1,4 +1,4 @@
-package com.dreamerpartner.codereview.lucene.util;
+package com.dreamerpartner.codereview.lucene;
 
 
 /*
@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -44,17 +46,37 @@ public class SearchFiles {
 
   private SearchFiles() {}
   
-  static String INDEX_PATH = "D:\\data\\lucene\\index";
-
+  @SuppressWarnings("deprecation")
+  public static List<Document> search(String field, String queryStr, int pageSize){
+	  if(StringUtils.isBlank(field) || StringUtils.isBlank(queryStr))
+		  return null;
+	  
+	  IndexReader reader = null;
+	  try {
+		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+		  IndexSearcher searcher = new IndexSearcher(reader);
+		  Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
+		  
+		  BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+		  QueryParser parser = new QueryParser(Version.LUCENE_4_10_0, field, analyzer);
+		  Query query = parser.parse(queryStr);
+		  System.out.println("Searching for: " + query.toString(field));
+		  //分页查询
+		  doPagingSearch(in, searcher, query, pageSize, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(reader !=null) reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	  return null;
+  }
+  
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
-    String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
-    if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
-      System.out.println(usage);
-      System.exit(0);
-    }
-
     String field = "contents";
     String queries = null;
     String queryString = "produce";
@@ -62,7 +84,7 @@ public class SearchFiles {
     boolean raw = false;
     int hitsPerPage = 10;
     
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(INDEX_PATH)));
+    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
     IndexSearcher searcher = new IndexSearcher(reader);
     // :Post-Release-Update-Version.LUCENE_XY:
     Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
@@ -104,7 +126,7 @@ public class SearchFiles {
       }
 
       //分页查询
-      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+      doPagingSearch(in, searcher, query, hitsPerPage, raw);
 
       if (queryString != null) {
         break;
@@ -124,29 +146,29 @@ public class SearchFiles {
    * 
    */
   public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, 
-                                     int hitsPerPage, boolean raw, boolean interactive) throws IOException {
+                                     int pageSize, boolean raw) throws IOException {
  
     // Collect enough docs to show 5 pages
-    TopDocs results = searcher.search(query, 5 * hitsPerPage);
+    TopDocs results = searcher.search(query, 5 * pageSize);
     ScoreDoc[] hits = results.scoreDocs;
     
-    int numTotalHits = results.totalHits;
-    System.out.println(numTotalHits + " total matching documents");
+    int numTotal = results.totalHits;
+    System.out.println(numTotal + " total matching documents");
 
     int start = 0;
-    int end = Math.min(numTotalHits, hitsPerPage);
+    int end = Math.min(numTotal, pageSize);
         
     while (true) {
       if (end > hits.length) {
-        System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
+        System.out.println("Only results 1 - " + hits.length +" of " + numTotal + " total matching documents collected.");
         System.out.println("Collect more (y/n) ?");
         String line = in.readLine();
         if (line.length() == 0 || line.charAt(0) == 'n') {
           break;
         }
-        hits = searcher.search(query, numTotalHits).scoreDocs;
+        hits = searcher.search(query, numTotal).scoreDocs;
       }
-      end = Math.min(hits.length, start + hitsPerPage);
+      end = Math.min(hits.length, start + pageSize);
       
       for (int i = start; i < end; i++) {
         if (raw) {                              // output raw format
@@ -157,18 +179,18 @@ public class SearchFiles {
         print(doc);
       }
 
-      if (!interactive || end == 0) {
+      if (end == 0) {
         break;
       }
 
-      if (numTotalHits >= end) {
+      if (numTotal >= end) {
         boolean quit = false;
         while (true) {
           System.out.print("Press ");
-          if (start - hitsPerPage >= 0) {
+          if (start - pageSize >= 0) {
             System.out.print("(p)revious page, ");  
           }
-          if (start + hitsPerPage < numTotalHits) {
+          if (start + pageSize < numTotal) {
             System.out.print("(n)ext page, ");
           }
           System.out.println("(q)uit or enter number to jump to a page.");
@@ -179,17 +201,17 @@ public class SearchFiles {
             break;
           }
           if (line.charAt(0) == 'p') {
-            start = Math.max(0, start - hitsPerPage);
+            start = Math.max(0, start - pageSize);
             break;
           } else if (line.charAt(0) == 'n') {
-            if (start + hitsPerPage < numTotalHits) {
-              start+=hitsPerPage;
+            if (start + pageSize < numTotal) {
+              start+=pageSize;
             }
             break;
           } else {
             int page = Integer.parseInt(line);
-            if ((page - 1) * hitsPerPage < numTotalHits) {
-              start = (page - 1) * hitsPerPage;
+            if ((page - 1) * pageSize < numTotal) {
+              start = (page - 1) * pageSize;
               break;
             } else {
               System.out.println("No such page");
@@ -197,7 +219,7 @@ public class SearchFiles {
           }
         }
         if (quit) break;
-        end = Math.min(numTotalHits, start + hitsPerPage);
+        end = Math.min(numTotal, start + pageSize);
       }
     }
   }

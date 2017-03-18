@@ -1,4 +1,4 @@
-package com.dreamerpartner.codereview.lucene.util;
+package com.dreamerpartner.codereview.lucene;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
