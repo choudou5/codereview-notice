@@ -165,13 +165,15 @@ public class SearchHelper {
 			  System.out.println("搜索命中数：" + groupResult.totalHitCount);
 			  System.out.println("搜索结果分组数：" + groupResult.groups.length);
 			  
-			  List<Document> groupData = new ArrayList<Document>(pageSize);
+			  List<Document> groupData = null;
 			  for (GroupDocs<BytesRef> groupDocs : groupResult.groups) {
+				  groupData = new ArrayList<Document>(pageSize);
 				  String groupName = groupDocs.groupValue.utf8ToString();
 			      for (ScoreDoc scoreDoc : groupDocs.scoreDocs) {
 			    	  groupData.add(indexSearcher.doc(scoreDoc.doc));
 			      }
 			      result.put(groupName, groupData);
+			      groupData = null;
 			  }
 		} catch (Exception e) {
 			e.printStackTrace();

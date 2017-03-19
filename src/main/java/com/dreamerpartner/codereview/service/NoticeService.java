@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletException;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.SortField.Type;
 
@@ -25,6 +27,28 @@ import com.dreamerpartner.codereview.vo.IndexNoticeGroupVo;
 public class NoticeService {
 
 	/**
+	 * 初始化索引
+	 * @param entity
+	 * @throws ServletException 
+	 * @throws IOException
+	 */
+	public static void initIndex() throws ServletException{
+		NoticeEntity entity = new NoticeEntity();
+		entity.setId(-1L);
+		entity.setCreateTime(DateUtil.toString(new Date()));
+		entity.setGroupKey("");
+		entity.setContent("");
+		entity.setType("");
+		entity.setTitle("");
+		NoticeEntityConvert convert = new NoticeEntityConvert();
+		try {
+			IndexHelper.add(convert.convert(entity), true);
+		} catch (Exception e) {
+			throw new ServletException("初始化 Notice 索引失败.", e);
+		}
+	}
+	
+	/**
 	 * 保存
 	 * @param entity
 	 * @throws IOException
@@ -32,7 +56,7 @@ public class NoticeService {
 	public static void save(NoticeEntity entity) throws IOException{
 		boolean isNew = entity.getId()==null;
 		if(isNew){
-			entity.setId(System.currentTimeMillis());
+			entity.setId(Long.parseLong(DateUtil.getTimeStr()));
 		}
 		entity.setCreateTime(DateUtil.toString(new Date()));
 		NoticeEntityConvert convert = new NoticeEntityConvert();

@@ -46,7 +46,7 @@ public class NoticeEntityConvert implements LuceneEntityConvert<NoticeEntity>{
 		doc.add(new TextField("content", entity.getContent(), Field.Store.YES));
 		doc.add(new StringField("type", entity.getType(), Field.Store.YES));
 		doc.add(new StringField("groupKey", entity.getGroupKey(), Field.Store.YES));
-		doc.add(new StringField("createTime", entity.getGroupKey(), Field.Store.YES));
+		doc.add(new StringField("createTime", entity.getCreateTime(), Field.Store.YES));
 		return doc;
 	}
 	

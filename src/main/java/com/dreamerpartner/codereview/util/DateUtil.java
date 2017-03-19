@@ -23,4 +23,30 @@ public class DateUtil {
 			return null;
 		}
 	}
+	
+	/**
+	 * 获得日期 字符串
+	 * @return yyyyMMdd
+	 */
+	public static String getDateShortStr(){
+		SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyyMMdd");
+		try {
+			return dateTimeFormatter.format(new Date());
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * 获得日期 字符串
+	 * @return yyyyMMddHHmmss
+	 */
+	public static String getTimeStr(){
+		SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyyMMddHHmmss");
+		try {
+			return dateTimeFormatter.format(new Date());
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }

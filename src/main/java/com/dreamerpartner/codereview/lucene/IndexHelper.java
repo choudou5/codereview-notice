@@ -96,7 +96,8 @@ public class IndexHelper {
 	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath()));
 	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
-	      iwc.setOpenMode(isNew?OpenMode.CREATE:OpenMode.CREATE_OR_APPEND);
+	      iwc.setMaxBufferedDocs(100);
+	      iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
 //	      iwc.setRAMBufferSizeMB(256.0);//设置内存 缓存区大小
 	      writer = new IndexWriter(dir, iwc);
 	      if (isNew) {
@@ -104,6 +105,8 @@ public class IndexHelper {
 	      } else {
 	    	  writer.updateDocument(delTerm, doc);
 	      }
+	     //合并数据
+	     writer.commit();
 	    }finally{
 	    	long endTime = System.currentTimeMillis();
 		    logger.debug("add consume "+(endTime-beginTime)+" milliseconds.");
@@ -135,7 +138,8 @@ public class IndexHelper {
 	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath()));
 	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
-	      iwc.setOpenMode(isNew?OpenMode.CREATE:OpenMode.CREATE_OR_APPEND);
+	      iwc.setMaxBufferedDocs(100);
+	      iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
 //	      iwc.setRAMBufferSizeMB(256.0);//设置内存 缓存区大小
 	      writer = new IndexWriter(dir, iwc);
 	      if (isNew) {
@@ -143,6 +147,7 @@ public class IndexHelper {
 	      } else {
 	    	  writer.updateDocuments(delTerm, docs);
 	      }
+	      writer.commit();
 	    }finally{
 	    	long endTime = System.currentTimeMillis();
 		    logger.debug("adds consume "+(endTime-beginTime)+" milliseconds.");
@@ -166,6 +171,7 @@ public class IndexHelper {
 	      writer = new IndexWriter(dir, iwc);
 	      //合并数据
 	      writer.forceMerge(1);
+	      writer.commit();
 	    }finally{
 	    	long endTime = System.currentTimeMillis();
 		    logger.debug("merge consume "+(endTime-beginTime)+" milliseconds.");

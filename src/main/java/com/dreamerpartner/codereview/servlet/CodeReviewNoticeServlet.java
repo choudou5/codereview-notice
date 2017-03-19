@@ -61,6 +61,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	public final static String PAGE_DETAIL = "detail";
 	public final static String PAGE_FORM = "form";
 	public final static String PAGE_FORM_SAVE = "formSave";
+	public final static String PAGE_AJAX_VALID_ACCOUNT = "ajaxValidAccount";
 	
 	public CodeReviewNoticeServlet() {
 		super();
@@ -85,31 +86,34 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	
 	private void initParam() throws ServletException{
 		//初始化 分组
-		String[] groupKeys = PropertiesUtil.getStringArray("group.keys");
-		if(groupKeys == null)
-			throw new ServletException("请初始化 system.properties 里的 group.keys 参数。");
-		GROUP_LIST.addAll(Arrays.asList(groupKeys));
+		if(GROUP_LIST.isEmpty()){
+			String[] groupKeys = PropertiesUtil.getStringArray("group.keys");
+			if(groupKeys == null)
+				throw new ServletException("请初始化 system.properties 里的 group.keys 参数。");
+			GROUP_LIST.addAll(Arrays.asList(groupKeys));
+		}
 		
 		//初始化 系统账号
-		String sysAdmin = PropertiesUtil.getString("system.admin");
-		if(StringUtils.isBlank(sysAdmin))
-			throw new ServletException("请初始化 system.properties 里的 system.admin 参数。");
-		ADMIN = sysAdmin;
+		if(StringUtils.isBlank(ADMIN)){
+			String sysAdmin = PropertiesUtil.getString("system.admin");
+			if(StringUtils.isBlank(sysAdmin))
+				throw new ServletException("请初始化 system.properties 里的 system.admin 参数。");
+			ADMIN = sysAdmin;
+		}
 		
 		//初始化  索引目录
 		LuceneUtil.initIndexDir();
-		
+		NoticeService.initIndex();//初始化索引
 		//初始化 OSS
 		OSSClientUtil.init();
 	}
-	
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		doPost(request, response);
 	}
 
-	public void doPost(HttpServletRequest request, HttpServletResponse response, NoticeEntity entity)
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setAttribute("version", "1.0.0");
 		String view = request.getParameter("view");
@@ -127,7 +131,10 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			Action.viewForm(request, response);
 			break;
 		case PAGE_FORM_SAVE:
-			Action.formSave(request, response, entity);
+			Action.formSave(request, response);
+			break;
+		case PAGE_AJAX_VALID_ACCOUNT:
+			Action.ajaxValidAccount(request, response);
 			break;
 		default:
 			Action.viewIndex(request, response);
@@ -137,6 +144,13 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	
 	static class Action{
 		
+		/**
+		 * 首页
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
 		public static void viewIndex(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			request.setAttribute("indexNoticeGroupVo", NoticeService.getIndexNoticeGroupVo());
 			request.setAttribute("groupList", GROUP_LIST);
@@ -145,21 +159,48 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			request.getRequestDispatcher(FILE_PATH+"index.jsp").forward(request, response);
 		}
 		
+		/**
+		 * 详情
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException 
+		 */
 		public static void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			String id = request.getParameter("type");
+			String id = request.getParameter("id");
 			if(StringUtils.isNotBlank(id)){
 				request.setAttribute("notice", NoticeService.get(id));
 			}
 			request.getRequestDispatcher(FILE_PATH+"detail.jsp").forward(request, response);
 		}
 		
+		/**
+		 * 新增
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException 
+		 */
 		public static void viewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			response.setHeader("Cache-Control","no-cache"); 
+			response.setHeader("Pragma","no-cache"); 
+			response.setDateHeader("Expires", 0); 
+			
 			request.setAttribute("type", request.getParameter("type"));
+			request.setAttribute("groupKey", request.getParameter("groupKey"));
 			request.setAttribute("groupList", GROUP_LIST);
 			request.getRequestDispatcher(FILE_PATH+"form.jsp").forward(request, response);
 		}
 		
-		public static void formSave(HttpServletRequest request, HttpServletResponse response, NoticeEntity entity) throws ServletException, IOException{
+		/**
+		 * 保存公告
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+		public static void formSave(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			NoticeEntity entity = buildNoticeEnitty(request);
 			logger.debug("entity:"+entity);
 			//参数校验
 			if(NoticeEntity.validate(entity)){
@@ -180,6 +221,37 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 				writeJson(response, 400, "失败成功！", e);
 			}
 		}
+		
+		/**
+		 * 异步验证 账号
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException 
+		 */
+		public static void ajaxValidAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String adminAccount = request.getParameter("adminAccount"); // AJAX验证，成功返回true
+			if (StringUtils.isNotBlank(adminAccount)){
+				response.getOutputStream().print(adminAccount.equals(ADMIN)?"true":"false");
+			}else{
+				response.getOutputStream().print("false");
+			}
+		}
+		
+		
+		private static NoticeEntity buildNoticeEnitty(HttpServletRequest request){
+			String groupKey = request.getParameter("groupKey");
+			if(StringUtils.isBlank(groupKey)){
+				return null;
+			}
+			NoticeEntity entity = new NoticeEntity();
+			entity.setGroupKey(groupKey);
+			entity.setTitle(request.getParameter("title"));
+			entity.setContent(request.getParameter("content"));
+			entity.setType(request.getParameter("type"));
+			return entity;
+		}
+		
 		
 		/**
 		 * 权限校验

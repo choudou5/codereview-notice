@@ -8,13 +8,17 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=8">
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-control" content="no-cache">
+	<meta http-equiv="Cache" content="no-cache">
     <link type="text/css" rel="stylesheet" href="/js/umeditor1.2.3/themes/default/_css/umeditor.css">
     <link rel='stylesheet' type='text/css' href='/css/index.css'>
     <link type="text/css" rel="stylesheet" href="/css/notice-form.css">
-    <title>Add Notice</title>
+    <title>添加公告</title>
 </head>
 <body>
-
 
 <section id="section-0" class="section gMyTHp" style="background-color:#C6F0D5" data-reactid="172">
   <div class="fUkIQu" data-reactid="173">
@@ -33,86 +37,46 @@
     	<span class="explain">把您的代码片段截图 粘贴上来吧！</span>
     </div>
     <div class="euuwmB">
-      <form action="/codereviewnotice?view=saveForm" method="post">
+      <form id="noticeForm" action="" method="post">
 		   <div class="item kKOtfr">
 		      	<div class="input-group">
-		      		<span>分组:</span>
+		      		<span>分组:<font color="red">*</font></span>
 		      		<label>
 		      			<select name="groupKey">
 		     			  <c:forEach var="group" items="${groupList }">
-		            		<option value="${group }">${group }</option>
+		            		<option value="${group }" <c:if test="${group eq groupKey}">selected="selected"</c:if>>${group }</option>
 		            	  </c:forEach>
 		      			</select>
 		      		</label>
 		      	</div>
 		      	<div class="input-group">
-		      		<span>标题:</span>
+		      		<span>类型:<font color="red">*</font></span>
 		      		<label>
-		      			<input name="title" class="input-large" placeholder="请输入公告标题" maxlength="25" />
+		      			<input name="type" type="radio" value="good" <c:if test="${type eq 'good'}">checked="checked"</c:if> />优秀Code &nbsp;&nbsp;
+		      			<input name="type" type="radio" value="bad" <c:if test="${type eq 'bad'}">checked="checked"</c:if> />待改善Code
+		      		</label>
+		      	</div>
+		      	<div class="input-group">
+		      		<span>标题:<font color="red">*</font></span>
+		      		<label>
+		      			<input name="title" type="text" class="input-large" placeholder="请输入公告标题" maxlength="25" />
 		      		</label>
 		      	</div>
 		      	
 		      	<div class="input-group">
 		      		<!--style给定宽度可以影响编辑器的最终宽度 content -->
-					<script type="text/plain" id="myEditor" style="width:1000px;height:240px;"><p>把您的代码片段截图 粘贴上了吧</p></script>
+					<script type="text/plain" id="contentEditor" name="content" style="width:80%;height:450px;"><p>把您的代码片段截图 粘贴上来吧</p></script>
 		      	</div>
-		       
 				<div class="clear"></div>
-				
 				<div class="input-group">
 		      		<label>
-		      			<input name="adminAccount" placeholder="请输入管理员账号" maxlength="30" />
+		      			<input name="adminAccount" type="text" placeholder="请输入管理员账号" maxlength="30" /><font color="red">*</font>
 		      		</label>
 		      	</div>
-		      	
 				<div class="input-group">
-		      		<input name="type" type="hidden" value="${type }" />
-					<input type="submit" value="提交" />
+					<input type="submit" value="提交" onclick="submitForm()"/>
 		      	</div>
 		      	
-				<div id="btns">
-					
-				    <table>
-				        <tr>
-				            <td>
-				                <button class="btn" unselected="on" onclick="getAllHtml()">获得整个html的内容</button>&nbsp;
-				                <button class="btn" onclick="getContent()">获得内容</button>&nbsp;
-				                <button class="btn" onclick="setContent()">写入内容</button>&nbsp;
-				                <button class="btn" onclick="setContent(true)">追加内容</button>&nbsp;
-				                <button class="btn" onclick="getContentTxt()">获得纯文本</button>&nbsp;
-				                <button class="btn" onclick="getPlainTxt()">获得带格式的纯文本</button>&nbsp;
-				                <button class="btn" onclick="hasContent()">判断是否有内容</button>
-				            </td>
-				        </tr>
-				        <tr>
-				            <td>
-				                <button class="btn" onclick="setFocus()">编辑器获得焦点</button>&nbsp;
-				                <button class="btn" onmousedown="isFocus();return false;">编辑器是否获得焦点</button>&nbsp;
-				                <button class="btn" onclick="doBlur()">编辑器取消焦点</button>&nbsp;
-				                <button class="btn" onclick="insertHtml()">插入给定的内容</button>&nbsp;
-				                <button class="btn" onclick="getContentTxt()">获得纯文本</button>&nbsp;
-				                <button class="btn" id="enable" onclick="setEnabled()">可以编辑</button>&nbsp;
-				                <button class="btn" onclick="setDisabled()">不可编辑</button>
-				            </td>
-				        </tr>
-				        <tr>
-				            <td>
-				                <button class="btn" onclick="UM.getEditor('myEditor').setHide()">隐藏编辑器</button>&nbsp;
-				                <button class="btn" onclick="UM.getEditor('myEditor').setShow()">显示编辑器</button>&nbsp;
-				                <button class="btn" onclick="UM.getEditor('myEditor').setHeight(300)">设置编辑器的高度为300</button>&nbsp;
-				                <button class="btn" onclick="UM.getEditor('myEditor').setWidth(1200)">设置编辑器的宽度为1200</button>
-				            </td>
-				        </tr>
-						<tr>
-				            <td>
-				                <button class="btn" onclick="createEditor()"/>创建编辑器</button>
-		            			<button class="btn" onclick="deleteEditor()"/>删除编辑器</button>
-				            </td>
-				        </tr>
-				    </table>
-				    <div><h3 id="focush2"></h3></div>
-				</div>
-		
 		      </div>
       </form>
     </div>
@@ -124,110 +88,72 @@
 <script type="text/javascript" charset="utf-8" src="/js/umeditor1.2.3/umeditor.config.js"></script>
 <script type="text/javascript" charset="utf-8" src="/js/umeditor1.2.3/editor_api.js"></script>
 <script type="text/javascript" src="/js/umeditor1.2.3/lang/zh-cn/zh-cn.js"></script>
+<script type="text/javascript" src="/js/jquery.validate.js"></script>
+
 <script type="text/javascript">
-    //实例化编辑器
-    var um = UM.getEditor('myEditor');
-    um.addListener('blur',function(){
-        $('#focush2').html('编辑器失去焦点了')
-    });
-    um.addListener('focus',function(){
-        $('#focush2').html('')
-    });
-    //按钮的操作
-    function insertHtml() {
-        var value = prompt('插入html代码', '');
-        um.execCommand('insertHtml', value)
-    }
-    function isFocus(){
-        alert(um.isFocus())
-    }
-    function doBlur(){
-        um.blur()
-    }
-    function createEditor() {
-        enableBtn();
-        um = UM.getEditor('myEditor');
-    }
-    function getAllHtml() {
-        alert(UM.getEditor('myEditor').getAllHtml())
-    }
-    function getContent() {
-        var arr = [];
-        arr.push("使用editor.getContent()方法可以获得编辑器的内容");
-        arr.push("内容为：");
-        arr.push(UM.getEditor('myEditor').getContent());
-        alert(arr.join("\n"));
-    }
-    function getPlainTxt() {
-        var arr = [];
-        arr.push("使用editor.getPlainTxt()方法可以获得编辑器的带格式的纯文本内容");
-        arr.push("内容为：");
-        arr.push(UM.getEditor('myEditor').getPlainTxt());
-        alert(arr.join('\n'))
-    }
-    function setContent(isAppendTo) {
-        var arr = [];
-        arr.push("使用editor.setContent('欢迎使用umeditor')方法可以设置编辑器的内容");
-        UM.getEditor('myEditor').setContent('欢迎使用umeditor', isAppendTo);
-        alert(arr.join("\n"));
-    }
-    function setDisabled() {
-        UM.getEditor('myEditor').setDisabled('fullscreen');
-        disableBtn("enable");
-    }
 
-    function setEnabled() {
-        UM.getEditor('myEditor').setEnabled();
-        enableBtn();
-    }
-
-    function getText() {
-        //当你点击按钮时编辑区域已经失去了焦点，如果直接用getText将不会得到内容，所以要在选回来，然后取得内容
-        var range = UM.getEditor('myEditor').selection.getRange();
-        range.select();
-        var txt = UM.getEditor('myEditor').selection.getText();
-        alert(txt)
-    }
-
-    function getContentTxt() {
-        var arr = [];
-        arr.push("使用editor.getContentTxt()方法可以获得编辑器的纯文本内容");
-        arr.push("编辑器的纯文本内容为：");
-        arr.push(UM.getEditor('myEditor').getContentTxt());
-        alert(arr.join("\n"));
-    }
-    function hasContent() {
-        var arr = [];
-        arr.push("使用editor.hasContents()方法判断编辑器里是否有内容");
-        arr.push("判断结果为：");
-        arr.push(UM.getEditor('myEditor').hasContents());
-        alert(arr.join("\n"));
-    }
-    function setFocus() {
-        UM.getEditor('myEditor').focus();
-    }
-    function deleteEditor() {
-        disableBtn();
-        UM.getEditor('myEditor').destroy();
-    }
-    function disableBtn(str) {
-        var div = document.getElementById('btns');
-        var btns = domUtils.getElementsByTagName(div, "button");
-        for (var i = 0, btn; btn = btns[i++];) {
-            if (btn.id == str) {
-                domUtils.removeAttributes(btn, ["disabled"]);
-            } else {
-                btn.setAttribute("disabled", "true");
+	$("#noticeForm").validate({
+		rules:{
+			groupKey:{
+				required:true
+			},
+			title:{
+				required: true,
+				minlength:6,
+				maxlength:25
+			},
+			adminAccount: {required: true, remote: "/codereviewnotice?view=ajaxValidAccount"}
+		},
+		messages: {
+			adminAccount: {remote: "账号不正确，请联系管理员", required: "请输入管理员账号"}
+		},
+		errorClass: "help-inline",
+		errorElement: "span",
+		highlight:function(element, errorClass, validClass) {
+			$(element).parents('.control-group').addClass('error');
+		},
+		unhighlight: function(element, errorClass, validClass) {
+			$(element).parents('.control-group').removeClass('error');
+			$(element).parents('.control-group').addClass('success');
+		},
+		submitHandler:function() {
+            ajaxSubmitForm();
+       },
+	});
+	
+	function submitForm(){
+		$("#noticeForm").valid();
+	}
+	
+	function ajaxSubmitForm() {
+		var param = $("#noticeForm").serialize();
+        var url = "/codereviewnotice?view=formSave";
+        $.ajax({
+            type: "post",
+            cache: false,
+            dataType: "json",
+            url: url,
+            data: param,
+            beforeSend: function(XMLHttpRequest){
+                console.log("ajaxSubmitForm beforeSend");
+            },
+            success: function(data, textStatus){
+            	console.log("ajaxSubmitForm success:"+data);
+            	if(data.status == 200){
+            		alert(data.content);
+            		window.location.reload();
+            	}else{
+            		alert(data.content);
+            	}
+            },
+            complete: function(XMLHttpRequest, textStatus){
+            	console.log("ajaxSubmitForm complete");
             }
-        }
+        });
     }
-    function enableBtn() {
-        var div = document.getElementById('btns');
-        var btns = domUtils.getElementsByTagName(div, "button");
-        for (var i = 0, btn; btn = btns[i++];) {
-            domUtils.removeAttributes(btn, ["disabled"]);
-        }
-    }
+
+    //实例化编辑器
+    var um = UM.getEditor('contentEditor');
 </script>
 
 </html>

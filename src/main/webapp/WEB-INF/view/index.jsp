@@ -16,7 +16,7 @@
     <link rel="mask-icon" href="/images/safari-pinned-tab.svg" color="#eb613d" />
     <meta name="msapplication-config" content="/images/browserconfig.xml" />
     <meta name="theme-color" content="#ffffff" />
-    <title data-react-helmet="true">Code Review Notice</title>
+    <title data-react-helmet="true">Code Review 公告</title>
     <meta data-react-helmet="true" name="description" content="Code Review Notice" />
     <link rel='stylesheet' type='text/css' href='/css/fonts.googleapis.com.css'>
     <link rel='stylesheet' type='text/css' href='/css/stickUp.css'>
@@ -127,11 +127,10 @@
 	              </div>
 	              <div class="euuwmB" data-reactid="187">
 	                <div class="item kKOtfr" data-reactid="195">
-	               		<h3 class="item-title jPzqaA" data-reactid="189">Good</h3>
+	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?view=form&type=good&groupKey=${group }" target="_blank">立即创建</a></h3>
 	               		<c:if test="${empty goodNotices[group] }">
 	               			<p>
 		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
-		               			<a href="?view=form&type=good" target="_blank">立即创建</a>
 	               			</p>
 	               		</c:if>
 	               		<c:if test="${not empty goodNotices[group] }">
@@ -144,11 +143,10 @@
 	                    
 	                </div>
 	                <div class="item kKOtfr" data-reactid="195">
-	                	<h3 class="item-title jPzqaA" data-reactid="189">Bad</h3>
+	                	<h3 class="item-title jPzqaA" data-reactid="189">待改善Code <a href="?view=form&type=bad&groupKey=${group }" target="_blank">立即创建</a></h3>
 	                	<c:if test="${empty badNotices[group] }">
 	               			<p>
 		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
-		               			<a href="?view=form&type=bad" target="_blank">立即创建</a>
 	               			</p>
 	               		</c:if>
 	               		<c:if test="${not empty badNotices[group] }">

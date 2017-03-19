@@ -1,6 +1,7 @@
 package com.dreamerpartner.codereview.lucene;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 
@@ -15,19 +16,20 @@ import com.dreamerpartner.codereview.util.PropertiesUtil;
  */
 public class LuceneUtil {
 
-	public static String PATH;
+	public static String DATA_PATH;
 	private static String INDEX_PATH;
 	
 	/**
 	 * 初始化  索引目录
 	 * @throws ServletException
+	 * @throws IOException 
 	 */
 	public static void initIndexDir() throws ServletException{
-		PATH = PropertiesUtil.getString("data.dir");
-		if(StringUtils.isBlank(PATH))
+		DATA_PATH = PropertiesUtil.getString("data.dir");
+		if(StringUtils.isBlank(DATA_PATH))
 			throw new ServletException("请初始化 system.properties 里的 data.dir 参数。");
 		
-		INDEX_PATH = PATH+"/index";
+		INDEX_PATH = DATA_PATH+"/index";
 		File file = new File(INDEX_PATH);
 		try {
 			if(!file.exists()) file.mkdir();
@@ -44,4 +46,11 @@ public class LuceneUtil {
 		return INDEX_PATH;
 	}
 	
+	/**
+	 * 获得 数据地址
+	 * @return
+	 */
+	public static String getDataPath(){
+		return DATA_PATH;
+	}
 }
