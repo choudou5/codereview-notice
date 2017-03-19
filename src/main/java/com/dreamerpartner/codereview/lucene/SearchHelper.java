@@ -24,43 +24,98 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.grouping.GroupDocs;
+import org.apache.lucene.search.grouping.GroupingSearch;
+import org.apache.lucene.search.grouping.TopGroups;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 
-/** Simple command-line based search demo. */
-public class SearchFiles {
+/**
+ * 查询助手
+ * @author xuhaowen
+ * @date 2017年3月19日
+ */
+public class SearchHelper {
 
-  private SearchFiles() {}
+  protected static Log logger = LogFactory.getLog(SearchHelper.class);
+	
+  private SearchHelper() {}
   
   @SuppressWarnings("deprecation")
-  public static List<Document> search(String field, String queryStr, int pageSize){
-	  if(StringUtils.isBlank(field) || StringUtils.isBlank(queryStr))
+  public static Document getById(String id){
+	  if(StringUtils.isEmpty(id))
+		  return null;
+	  IndexReader reader = null;
+	  try {
+		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+		  IndexSearcher searcher = new IndexSearcher(reader);
+		  
+		  BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+		  Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
+		  //单字段查询
+		  QueryParser parser = new QueryParser(Version.LUCENE_4_10_0, "id", analyzer);
+		  Query query = parser.parse(id);
+		  return searchOne(in, searcher, query);
+		} catch (Exception e) {
+			logger.error(id+" getById fail.", e);
+		}finally{
+			try {
+				if(reader !=null) reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	  return null;
+  }
+  
+  @SuppressWarnings("deprecation")
+  public static List<Document> search(String[] fields, String[] queryStr, int pageSize){
+	  if(ArrayUtils.isEmpty(fields) || ArrayUtils.isEmpty(queryStr))
 		  return null;
 	  
 	  IndexReader reader = null;
 	  try {
 		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
 		  IndexSearcher searcher = new IndexSearcher(reader);
+		  
+		  BooleanClause.Occur[] flags = new BooleanClause.Occur[fields.length];
+		  for (int i = 0; i < fields.length; i++) {
+			  flags[i] = BooleanClause.Occur.SHOULD;
+		  }
+		  BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 		  Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 		  
-		  BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-		  QueryParser parser = new QueryParser(Version.LUCENE_4_10_0, field, analyzer);
-		  Query query = parser.parse(queryStr);
-		  System.out.println("Searching for: " + query.toString(field));
+		  //单字段查询
+//		  QueryParser parser = new QueryParser(Version.LUCENE_4_10_0, field, analyzer);
+//		  Query query = parser.parse(queryStr);
+		  
+		  Query query = MultiFieldQueryParser.parse(Version.LUCENE_4_10_0, queryStr, fields, flags, analyzer);
 		  //分页查询
 		  doPagingSearch(in, searcher, query, pageSize, false);
 		} catch (Exception e) {
@@ -73,6 +128,61 @@ public class SearchFiles {
 			}
 		}
 	  return null;
+  }
+  
+  /**
+   * 分组 查询
+   * @param groupField 分组字段
+   * @param searchField 查询字段
+   * @param searchStr 查询字符串
+   * @param pageNo
+   * @param pageSize
+   * @param orderField 排序字段
+   * @param orderFieldType 排序字段类型
+   * @param asc 是否 升序排
+   * @return
+   */
+  @SuppressWarnings("deprecation")
+  public static Map<String, List<Document>> group(String groupField, String searchField, String searchStr, 
+		  int pageNo, int pageSize, String orderField, Type orderFieldType, boolean asc) {
+	    Map<String, List<Document>> result = new LinkedHashMap<String, List<Document>>(10);
+	    IndexReader reader = null;
+		try {
+			  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+			  IndexSearcher indexSearcher = new IndexSearcher(reader);
+			  GroupingSearch groupingSearch = new GroupingSearch(groupField);
+			  groupingSearch.setGroupSort(new Sort(new SortField(orderField, orderFieldType, asc)));
+			  groupingSearch.setFillSortFields(true);
+			  groupingSearch.setCachingInMB(4.0, true);
+			  groupingSearch.setAllGroups(true);
+			  //groupingSearch.setAllGroupHeads(true);
+			  groupingSearch.setGroupDocsLimit(pageSize);
+	
+			  QueryParser parser = new QueryParser(Version.LUCENE_4_10_0,  searchField, new StandardAnalyzer(Version.LUCENE_4_10_0));
+			  Query query = parser.parse(searchStr);
+	
+			  TopGroups<BytesRef> groupResult = groupingSearch.search(indexSearcher, query, (pageNo-1)*pageSize, pageSize);
+			  System.out.println("搜索命中数：" + groupResult.totalHitCount);
+			  System.out.println("搜索结果分组数：" + groupResult.groups.length);
+			  
+			  List<Document> groupData = new ArrayList<Document>(pageSize);
+			  for (GroupDocs<BytesRef> groupDocs : groupResult.groups) {
+				  String groupName = groupDocs.groupValue.utf8ToString();
+			      for (ScoreDoc scoreDoc : groupDocs.scoreDocs) {
+			    	  groupData.add(indexSearcher.doc(scoreDoc.doc));
+			      }
+			      result.put(groupName, groupData);
+			  }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(reader !=null) reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+      return result;
   }
   
   /** Simple command-line based search demo. */
@@ -136,18 +246,34 @@ public class SearchFiles {
   }
 
   /**
-   * This demonstrates a typical paging search scenario, where the search engine presents 
-   * pages of size n to the user. The user can then go to the next page if interested in
-   * the next hits.
-   * 
-   * When the query is executed for the first time, then only enough results are collected
-   * to fill 5 result pages. If the user wants to page beyond this limit, then the query
-   * is executed another time and all hits are collected.
-   * 
+   * 单条记录
+   * @param in
+   * @param searcher
+   * @param query
+   * @return
+   * @throws IOException
+   */
+  public static Document searchOne(BufferedReader in, IndexSearcher searcher, Query query) throws IOException {
+	  TopDocs results = searcher.search(query, 1);
+	  ScoreDoc[] hits = results.scoreDocs;
+	  int numTotal = results.totalHits;
+      if(numTotal > 0){
+    	 return searcher.doc(hits[0].doc);
+      }
+      return null;
+  }
+  
+  /**
+   * 分页查询
+   * @param in
+   * @param searcher
+   * @param query
+   * @param pageSize
+   * @param raw
+   * @throws IOException
    */
   public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, 
                                      int pageSize, boolean raw) throws IOException {
- 
     // Collect enough docs to show 5 pages
     TopDocs results = searcher.search(query, 5 * pageSize);
     ScoreDoc[] hits = results.scoreDocs;

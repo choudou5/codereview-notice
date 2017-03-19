@@ -2,6 +2,8 @@ package com.dreamerpartner.codereview.entity;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * 公告 Entity
  * @author xuhaowen
@@ -11,17 +13,25 @@ public class NoticeEntity implements Serializable{
 
 	private static final long serialVersionUID = 9047384879926533459L;
 	
-	private String id;
+	private Long id;
 	private String title;
 	private String content;
 	private String type;
 	private String groupKey;
 	private String createTime;
 	
-	public String getId() {
+	public static boolean validate(NoticeEntity entity){
+		if(entity == null){
+			return false;
+		}
+		return (StringUtils.isBlank(entity.getGroupKey()) || StringUtils.isBlank(entity.getTitle()) 
+				|| StringUtils.isBlank(entity.getContent()) || StringUtils.isBlank(entity.getType()));
+	}
+	
+	public Long getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getTitle() {
@@ -55,4 +65,8 @@ public class NoticeEntity implements Serializable{
 		this.createTime = createTime;
 	}
 	
+	@Override
+	public String toString() {
+		return "id:"+id+",title:"+title+",type:"+type+",groupKey:"+groupKey+", createTime:"+createTime;
+	}
 }

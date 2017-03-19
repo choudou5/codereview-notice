@@ -1,0 +1,55 @@
+
+.navbar-nav ul{
+   
+}
+    
+.navbar-nav li{
+   list-style-type:none; /* 无列表符号样式 */
+   margin: 2px 5px 2px -35px;
+   min-width: 100px;
+}
+    
+
+/* Special class on .container surrounding .navbar, used for positioning it into place. */
+.navbar-wrapper {
+  margin-top:20px;
+  margin-right: 10px;
+  position: relative;
+  z-index: 15;
+  right: 0px;
+}
+
+.navbar-static-right {
+  background: #0099CC;
+  border-color: #398439;
+}
+.navbar-static-right a{
+  color:#fff;
+}
+.navbar-static-right a:hover{
+  color: #EB613D;
+}
+.navbar-static-right .navbar-nav>.active>a, .navbar-static-right .navbar-nav>.active>a:focus{
+  font-weight:700;
+  color: #EB613D;
+}
+.navbar-static-right .navbar-nav>.active>a:hover {
+  color:#fff;
+  font-weight:700;
+  text-decoration: none;
+}
+
+/* RESPONSIVE CSS
+-------------------------------------------------- */
+
+@media (min-width: 768px) {
+
+  /* Navbar positioning foo */
+  .navbar-wrapper {
+
+  }
+  /* The navbar becomes detached from the top, so we round the corners */
+  .navbar-wrapper .navbar {
+    border-radius: 4px;
+  }
+}

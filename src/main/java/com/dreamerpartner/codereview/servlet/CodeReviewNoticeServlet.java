@@ -17,7 +17,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.dreamerpartner.codereview.entity.NoticeEntity;
 import com.dreamerpartner.codereview.lucene.LuceneUtil;
+import com.dreamerpartner.codereview.service.NoticeService;
 import com.dreamerpartner.codereview.util.JsonUtil;
 import com.dreamerpartner.codereview.util.OSSClientUtil;
 import com.dreamerpartner.codereview.util.PropertiesUtil;
@@ -107,7 +109,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		doPost(request, response);
 	}
 
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
+	public void doPost(HttpServletRequest request, HttpServletResponse response, NoticeEntity entity)
 			throws ServletException, IOException {
 		request.setAttribute("version", "1.0.0");
 		String view = request.getParameter("view");
@@ -125,7 +127,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			Action.viewForm(request, response);
 			break;
 		case PAGE_FORM_SAVE:
-			Action.formSave(request, response);
+			Action.formSave(request, response, entity);
 			break;
 		default:
 			Action.viewIndex(request, response);
@@ -136,8 +138,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	static class Action{
 		
 		public static void viewIndex(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			
-			
+			request.setAttribute("indexNoticeGroupVo", NoticeService.getIndexNoticeGroupVo());
 			request.setAttribute("groupList", GROUP_LIST);
 			request.setAttribute("groupColors", GROUP_COLORS);
 			request.setAttribute("groupBgPatterns", GROUP_BG_PATTERN);
@@ -145,25 +146,39 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		}
 		
 		public static void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			
+			String id = request.getParameter("type");
+			if(StringUtils.isNotBlank(id)){
+				request.setAttribute("notice", NoticeService.get(id));
+			}
 			request.getRequestDispatcher(FILE_PATH+"detail.jsp").forward(request, response);
 		}
 		
 		public static void viewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			request.setAttribute("type", request.getParameter("type"));
 			request.setAttribute("groupList", GROUP_LIST);
 			request.getRequestDispatcher(FILE_PATH+"form.jsp").forward(request, response);
 		}
 		
-		public static void formSave(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			String groupKey = request.getParameter(GROUP_KEY);
-			logger.debug("groupKey:"+groupKey);
+		public static void formSave(HttpServletRequest request, HttpServletResponse response, NoticeEntity entity) throws ServletException, IOException{
+			logger.debug("entity:"+entity);
+			//参数校验
+			if(NoticeEntity.validate(entity)){
+				writeJson(response, 403, "提交参数不完整！请填写完整.");
+				return;
+			}
 			//权限校验
 			if(!isPermission(request)){
 				writeJson(response, 403, "账号不正确！请联系管理员.");
 				return;
 			}
 			
-			response.sendRedirect("/");
+			//保存
+			try {
+				NoticeService.save(entity);
+				writeJson(response, 200, "保存成功！");
+			} catch (Exception e) {
+				writeJson(response, 400, "失败成功！", e);
+			}
 		}
 		
 		/**
@@ -172,7 +187,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @return
 		 */
 		private static boolean isPermission(HttpServletRequest request){
-			String account = request.getParameter("account");
+			String account = request.getParameter("adminAccount");
 			return ADMIN.equals(account)?true:false;
 		}
 		
@@ -183,11 +198,25 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @param content 输出内容
 		 */
 		private static void writeJson(HttpServletResponse response, int status, Object content){
+			writeJson(response, status, content, null);
+		}
+		
+		/**
+		 * 输出json
+		 * @param response
+		 * @param status 状态
+		 * @param content 输出内容
+		 * @param ex
+		 */
+		private static void writeJson(HttpServletResponse response, int status, Object content, Exception ex){
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("application/json; charset=utf-8");
 			Map<String, Object> result = new HashMap<String, Object>(2);
 			result.put("status", status);
 			result.put("content", content);
+			if(ex != null){
+				result.put("error", ex.getMessage());
+			}
 			PrintWriter out = null;
 			try {
 			    out = response.getWriter();

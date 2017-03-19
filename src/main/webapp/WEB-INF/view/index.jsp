@@ -18,9 +18,16 @@
     <meta name="theme-color" content="#ffffff" />
     <title data-react-helmet="true">Code Review Notice</title>
     <meta data-react-helmet="true" name="description" content="Code Review Notice" />
-    <link rel='stylesheet' href='/css/fonts.googleapis.com.css' type='text/css'></head>
-    <link rel='stylesheet' href='/css/index.css' type='text/css'></head>
+    <link rel='stylesheet' type='text/css' href='/css/fonts.googleapis.com.css'>
+    <link rel='stylesheet' type='text/css' href='/css/stickUp.css'>
+    <link rel='stylesheet' type='text/css' href='/css/index.css'>
+    </head>
   <body>
+    <%-- 服务器返回对象 --%>
+  	<c:set var="groupCount" value="${fn:length(groupList) }"/>
+  	<c:set var="goodNotices" value="${indexNoticeGroupVo.goods }"/>
+  	<c:set var="badNotices" value="${indexNoticeGroupVo.bads }"/>
+  	
     <div id="react-mount">
       <div class="iQbGqt" data-reactroot="" data-reactid="1" data-react-checksum="1732591574">
         <div data-reactid="2">
@@ -61,7 +68,6 @@
                 <div class="hPJIuQ" data-reactid="17">
                   <p><strong>Code Review</strong>, 是提高编码能力的重要流程, Are you ready？</p>
                   <p>
-                  	  <c:set var="groupCount" value="${fn:length(groupList) }"/>
 	                  <c:forEach var="group" items="${groupList }" varStatus="status">
 	            		<c:set var="index" value="${status.index+1 }"/>
 	            		<a href="#section-${index }">${group }</a>
@@ -71,22 +77,7 @@
                 </div>
                 <div class="hYQYcF" data-reactid="18">
                   <span class="jcrkPC" data-reactid="19"></span>
-                  <div class="jEjczF" data-reactid="22">
-                    <a title="分享到微信" href="#shares" data-reactid="23">
-                    	<svg viewBox="-40 -60 500 512">
-                         	<ellipse cx="150" cy="150" rx="150" ry="110" style="fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:2"></ellipse>
-						    <circle cx="90" cy="105" r="15" style="fill:#08c406;stroke:#08c406;stroke-width:2"></circle>
-						    <circle cx="210" cy="105" r="15" style="fill:#08c406;stroke:#08c406;stroke-width:2"></circle>
-						    <polygon points="50,260 80,195 180,200" style="fill:#fff;stroke:#fff;stroke-width:1"></polygon>
-						
-						    <ellipse cx="268" cy="228" rx="125" ry="90" style="fill:#08c406;stroke:#08c406;stroke-width:2"></ellipse>
-						    <ellipse cx="270" cy="230" rx="125" ry="90" style="fill:rgb(255,255,255);stroke:rgb(255,255,255);stroke-width:2"></ellipse>
-						    <circle cx="220" cy="200" r="10" style="fill:#08c406;stroke:#08c406;stroke-width:2"></circle>
-						    <circle cx="320" cy="200" r="10" style="fill:#08c406;stroke:#08c406;stroke-width:2"></circle>
-						    <polygon points="330,260 350,320 300,300" style="fill:#fff;stroke:#fff;stroke-width:1"></polygon>
-						</svg>
-                    </a>
-                  </div>
+		          <%@include file="/WEB-INF/view/include/baidu_share.jsp" %>
                   <span class="jcrkPC" data-reactid="30"></span>
                 </div>
               </div>
@@ -135,45 +126,38 @@
 	                </div>
 	              </div>
 	              <div class="euuwmB" data-reactid="187">
-	                <div class="item kKOtfr" data-reactid="188">
-	                  <h3 class="item-title jPzqaA" data-reactid="189">
-	                    <a href="http://uibreakfast.com/40-learning-projects-sacha-greif/" data-reactid="190">UI Breakfast Podcast</a>
-	                    <span class="fgqZDe" data-reactid="191">2016</span></h3>
+	                <div class="item kKOtfr" data-reactid="195">
+	               		<h3 class="item-title jPzqaA" data-reactid="189">Good</h3>
+	               		<c:if test="${empty goodNotices[group] }">
+	               			<p>
+		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
+		               			<a href="?view=form&type=good" target="_blank">立即创建</a>
+	               			</p>
+	               		</c:if>
+	               		<c:if test="${not empty goodNotices[group] }">
+		               		<ul>
+		               			<c:forEach var="notice" items="${goodNotices[group] }">
+						        	<li><a href="?view=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
+		               			</c:forEach>
+						    </ul>
+	               		</c:if>
+	                    
 	                </div>
 	                <div class="item kKOtfr" data-reactid="195">
-	                  <h3 class="item-title jPzqaA" data-reactid="196">
-	                    <a href="https://devchat.tv/react-native-radio/43-the-state-of-javascript-and-react-native-with-sacha-greif/" data-reactid="197">React Native Radio</a>
-	                    <span class="fgqZDe" data-reactid="198">2016</span></h3>
-	                </div>
-	                <div class="item kKOtfr" data-reactid="202">
-	                  <h3 class="item-title jPzqaA" data-reactid="203">
-	                    <a href="https://www.discovermeteor.com/podcast" data-reactid="204">Discover Meteor Podcast</a>
-	                    <span class="fgqZDe" data-reactid="205">2015</span></h3>
-	                </div>
-	                <div class="item kKOtfr" data-reactid="209">
-	                  <h3 class="item-title jPzqaA" data-reactid="210">
-	                    <a href="http://www.binpress.com/blog/2015/07/21/podcast-39-sacha-greif/" data-reactid="211">Binpress Podcast</a>
-	                    <span class="fgqZDe" data-reactid="212">2015</span></h3>
-	                </div>
-	                <div class="item kKOtfr" data-reactid="216">
-	                  <h3 class="item-title jPzqaA" data-reactid="217">
-	                    <a href="http://www.productpeople.tv/63" data-reactid="218">Product People</a>
-	                    <span class="fgqZDe" data-reactid="219">2014</span></h3>
-	                </div>
-	                <div class="item kKOtfr" data-reactid="223">
-	                  <h3 class="item-title jPzqaA" data-reactid="224">
-	                    <a href="https://changelog.com/podcast/91" data-reactid="225">The Changelog</a>
-	                    <span class="fgqZDe" data-reactid="226">2013</span></h3>
-	                </div>
-	                <div class="item kKOtfr" data-reactid="230">
-	                  <h3 class="item-title jPzqaA" data-reactid="231">
-	                    <a href="http://upfrontpodcast.com/2013/04/12/episode12.html" data-reactid="232">Upfront Podcast</a>
-	                    <span class="fgqZDe" data-reactid="233">2013</span></h3>
-	                </div>
-	                <div class="item kKOtfr" data-reactid="237">
-	                  <h3 class="item-title jPzqaA" data-reactid="238">
-	                    <a href="http://theindustry.cc/2012/05/22/10-facebook-ipod-the-toolbox-launches-parse-for-ios-and-android-and-say-hello-to-octicons/" data-reactid="239">The Industry</a>
-	                    <span class="fgqZDe" data-reactid="240">2012</span></h3>
+	                	<h3 class="item-title jPzqaA" data-reactid="189">Bad</h3>
+	                	<c:if test="${empty badNotices[group] }">
+	               			<p>
+		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
+		               			<a href="?view=form&type=bad" target="_blank">立即创建</a>
+	               			</p>
+	               		</c:if>
+	               		<c:if test="${not empty badNotices[group] }">
+		               		<ul>
+		               			<c:forEach var="notice" items="${badNotices[group] }">
+						        	<li><a href="?view=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
+		               			</c:forEach>
+						    </ul>
+	               		</c:if>
 	                </div>
 	              </div>
 	            </div>
@@ -181,41 +165,56 @@
           	
           </c:forEach>
           
-           <div id="shares" class="shares">
-	          <div>
-	          	<span>分享到微信</span>
-	          	<label id="shareWeixin"></label>
-	          </div>
-           </div>
-		   <div class="kRmhrp" data-reactid="302">
-	          <p>Code Review Notice · Version ${version } · by choudoufu<a href="#">Fork me on github</a></p>
+           <!-- START THE NAVBAR -->
+		    <div class="navbar-wrapper">
+		      <div class="navwrapper">
+		      	<c:if test="${groupCount > 0 }">
+			        <div class="navbar-static-right">
+		              <ul class="nav navbar-nav">
+		              	<li class="menuItem active"><a href="#section-0">︽</a></li>
+		              	<c:forEach var="group" items="${groupList }" varStatus="status">
+		            		<c:set var="index" value="${status.index+1 }"/>
+		            		<li class="menuItem"><a href="#section-${index }">${group }</a></li>
+		            	</c:forEach>
+		                <li class="menuItem"><a href="#footer">︾</a></li>
+		              </ul>
+			        </div>
+		        </c:if> 
+		      </div><!-- End Navbar -->
+		    </div> <!-- END NAVBAR -->
+		    
+		   <div id="footer" class="footer" data-reactid="302">
+	          <p>Code Review Notice · Version ${version } · by choudoufu&nbsp;<a href="#">Fork me on github</a></p>
            </div>
         </div>
       </div>
     </div>
-    
+    <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> -->
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/stickUp.js"></script>
     <script type="text/javascript" src="/js/qrcode.min.js"></script>
     <script type="text/javascript">
-    
-	    window.onload = function() {
-	        (function() {
-	            //获取放置微信二维码的DIV
-	           // var content = document.getElementById("qrcode");
-	            //设置属性
-	            var qrcode = new QRCode('shareWeixin', {
-					width: 180,
-					height: 180,
-					colorDark : '#000000',
-					colorLight : '#ffffff',
-					correctLevel : QRCode.CorrectLevel.H
-				});
-	            //设置二维码内容
-	            qrcode.makeCode("http://blog.csdn.net/konaji");
-	        })();
-	    }
-
+	    jQuery(function($) {
+	        $(document).ready( function() {
+	          //右侧导航菜单
+        	  var groupCount = parseInt("${fn:length(groupList) }");
+	          if(groupCount > 0){
+	        	  var parts = {};
+	        	  for(var i=0; i<=groupCount; i++){
+	        		  parts[i] = "section-"+i;
+	        	  }
+	        	  var end = groupCount+1;
+	        	  parts[end] = "footer";
+	        	  $('.navbar-wrapper').stickUp({
+	                  parts: parts,
+	                  itemClass: 'menuItem',
+	                  itemHover: 'active',
+	                  topMargin: 'auto'
+	              });
+	          }
+	        });
+	      });
     </script>
-    
   </body>
-
 </html>
