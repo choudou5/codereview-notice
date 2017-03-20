@@ -20,12 +20,12 @@
 	        window._bd_share_config = {
 	              "common": {
 	                "bdSnsKey": {},
-	                "bdText": "这个应用不错，分享给大家",
+	                "bdText": "这个应用不错，分享Git地址给大家",
 	                "bdMini": "2",
 	                "bdPic": "",
 	                "bdStyle": "1",
 	                "bdSize": "32",
-	                "bdUrl": "http://www.solrhome.com"
+	                "bdUrl": "https://github.com/DreamerPartner/codereview-notice"
 	              },
 	              "share": {
 	                "bdSize": "24"

@@ -32,7 +32,13 @@
   <div class="jcZDsC" style="border-left: none;">
   	<div class="header-center">
     	<h2>${notice.title }</h2>
-    	<span class="explain">${notice.groupKey}， 类型：${notice.type } ，时间： ${notice.createTime }</span>
+    	<span class="explain">分组：${notice.groupKey} ，
+    	类型：
+    	<font color="#CC6600">
+    	<c:if test="${notice.type eq 'good'}">优秀Code</c:if>
+    	<c:if test="${notice.type eq 'bad'}">待改善Code</c:if>
+    	</font>
+    	，时间： ${notice.createTime }</span>
     </div>
     <br>
     ${notice.content }

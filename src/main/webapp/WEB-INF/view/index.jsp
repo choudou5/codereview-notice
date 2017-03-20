@@ -182,7 +182,7 @@
 		    </div> <!-- END NAVBAR -->
 		    
 		   <div id="footer" class="footer" data-reactid="302">
-	          <p>Code Review Notice · Version ${version } · by choudoufu&nbsp;<a href="#">Fork me on github</a></p>
+	          <p>Code Review Notice · Version ${version } · by choudoufu&nbsp;<a href="https://github.com/DreamerPartner/codereview-notice" target="_blank">Fork me on github</a></p>
            </div>
         </div>
       </div>

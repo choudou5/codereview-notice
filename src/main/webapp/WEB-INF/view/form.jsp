@@ -70,7 +70,7 @@
 				<div class="clear"></div>
 				<div class="input-group">
 		      		<label>
-		      			<input name="adminAccount" type="text" placeholder="请输入管理员账号" maxlength="30" /><font color="red">*</font>
+		      			<input name="adminAccount" type="password" placeholder="请输入管理员账号" maxlength="30" /><font color="red">*</font>
 		      		</label>
 		      	</div>
 				<div class="input-group">

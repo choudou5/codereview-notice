@@ -1,7 +1,6 @@
 package com.dreamerpartner.codereview.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +33,8 @@ public class NoticeService {
 	 */
 	public static void initIndex() throws ServletException{
 		NoticeEntity entity = new NoticeEntity();
-		entity.setId(-1L);
-		entity.setCreateTime(DateUtil.toString(new Date()));
+		entity.setId("0");
+		entity.setCreateTime(DateUtil.getDateStr());
 		entity.setGroupKey("");
 		entity.setContent("");
 		entity.setType("");
@@ -56,9 +55,9 @@ public class NoticeService {
 	public static void save(NoticeEntity entity) throws IOException{
 		boolean isNew = entity.getId()==null;
 		if(isNew){
-			entity.setId(Long.parseLong(DateUtil.getTimeStr()));
+			entity.setId(DateUtil.getTimeStr());
 		}
-		entity.setCreateTime(DateUtil.toString(new Date()));
+		entity.setCreateTime(DateUtil.getDateStr());
 		NoticeEntityConvert convert = new NoticeEntityConvert();
 		IndexHelper.add(convert.convert(entity), isNew);
 	}
@@ -84,14 +83,14 @@ public class NoticeService {
 	public static IndexNoticeGroupVo getIndexNoticeGroupVo(){
 		int pageSize = PropertiesUtil.getInteger("index.group.pagesize", 10);
 		String groupField = "groupKey", searchField = "type", orderField = "id";
-		Type orderFieldType = Type.LONG;
-		boolean asc = true;
+		Type orderFieldType = Type.STRING;
+		boolean desc = true;
 		
 		//search good type
-		Map<String, List<Document>> goodGroupData = SearchHelper.group(groupField, searchField, "good", 1, pageSize, orderField, orderFieldType, asc);
+		Map<String, List<Document>> goodGroupData = SearchHelper.group(groupField, searchField, "good", 1, pageSize, orderField, orderFieldType, desc);
 		Map<String ,List<NoticeEntity>> goodGroupEntitys = convertGroupData(goodGroupData);
 		//search good type
-		Map<String, List<Document>> badGroupData = SearchHelper.group(groupField, searchField, "bad", 1, pageSize, orderField, orderFieldType, asc);
+		Map<String, List<Document>> badGroupData = SearchHelper.group(groupField, searchField, "bad", 1, pageSize, orderField, orderFieldType, desc);
 		Map<String ,List<NoticeEntity>> badGroupEntitys = convertGroupData(badGroupData);
 		return new IndexNoticeGroupVo(goodGroupEntitys, badGroupEntitys);
 	}
