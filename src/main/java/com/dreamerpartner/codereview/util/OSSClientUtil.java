@@ -26,7 +26,7 @@ public class OSSClientUtil {
 	
 	public static void init() throws ServletException{
 		if(StringUtils.isBlank(bucketName)){
-			String endpoint = "http://oss-cn-shanghai.aliyuncs.com";
+			String endpoint = PropertiesUtil.getString("oss.endPoint");
 			// accessKey请登录https://ak-console.aliyun.com/#/查看
 			String accessKeyId = PropertiesUtil.getString("oss.accessKeyId");
 			String accessKeySecret = PropertiesUtil.getString("oss.accessSecret");
