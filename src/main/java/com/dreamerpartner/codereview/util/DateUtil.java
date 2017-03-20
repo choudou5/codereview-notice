@@ -49,4 +49,25 @@ public class DateUtil {
 			return null;
 		}
 	}
+	
+	/**
+	 * 获得日期 字符串
+	 * @return yyyy-MM-dd HH:mm
+	 */
+	public static String getDateStr(){
+		SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		try {
+			return dateTimeFormatter.format(new Date());
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * 获得日期
+	 * @return yyyyMMddHHmmss
+	 */
+	public static long getTimeLong(){
+		return Long.parseLong(getTimeStr());
+	}
 }
