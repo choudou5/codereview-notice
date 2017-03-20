@@ -139,19 +139,21 @@ public class SearchHelper {
    * @param pageSize
    * @param orderField 排序字段
    * @param orderFieldType 排序字段类型
-   * @param asc 是否 升序排
+   * @param desc 是否 降序排
    * @return
    */
   @SuppressWarnings("deprecation")
   public static Map<String, List<Document>> group(String groupField, String searchField, String searchStr, 
-		  int pageNo, int pageSize, String orderField, Type orderFieldType, boolean asc) {
+		  int pageNo, int pageSize, String orderField, Type orderFieldType, boolean desc) {
 	    Map<String, List<Document>> result = new LinkedHashMap<String, List<Document>>(10);
 	    IndexReader reader = null;
 		try {
 			  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
 			  IndexSearcher indexSearcher = new IndexSearcher(reader);
 			  GroupingSearch groupingSearch = new GroupingSearch(groupField);
-			  groupingSearch.setGroupSort(new Sort(new SortField(orderField, orderFieldType, asc)));
+			  Sort sort = new Sort(new SortField(orderField, orderFieldType, desc));
+			  groupingSearch.setGroupSort(sort);
+			  groupingSearch.setSortWithinGroup(sort);
 			  groupingSearch.setFillSortFields(true);
 			  groupingSearch.setCachingInMB(4.0, true);
 			  groupingSearch.setAllGroups(true);

@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
@@ -28,7 +27,7 @@ public class NoticeEntityConvert implements LuceneEntityConvert<NoticeEntity>{
 	@Override
 	public NoticeEntity convert(Document doc, boolean isList) {
 		NoticeEntity entity = new NoticeEntity();
-		entity.setId(Long.parseLong(doc.get("id")));
+		entity.setId(doc.get("id"));
 		entity.setTitle(doc.get("title"));
 		if(!isList)
 			entity.setContent(doc.get("content"));
@@ -41,7 +40,7 @@ public class NoticeEntityConvert implements LuceneEntityConvert<NoticeEntity>{
 	@Override
 	public Document convert(NoticeEntity entity) {
 		Document doc = new Document();
-		doc.add(new LongField("id", entity.getId(), Field.Store.YES));
+		doc.add(new StringField("id", entity.getId(), Field.Store.YES));
 		doc.add(new StringField("title", entity.getTitle(), Field.Store.YES));
 		doc.add(new TextField("content", entity.getContent(), Field.Store.YES));
 		doc.add(new StringField("type", entity.getType(), Field.Store.YES));

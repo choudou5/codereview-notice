@@ -13,7 +13,7 @@ public class NoticeEntity implements Serializable{
 
 	private static final long serialVersionUID = 9047384879926533459L;
 	
-	private Long id;
+	private String id;
 	private String title;
 	private String content;
 	private String type;
@@ -28,10 +28,10 @@ public class NoticeEntity implements Serializable{
 				|| StringUtils.isBlank(entity.getContent()) || StringUtils.isBlank(entity.getType()));
 	}
 	
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getTitle() {
