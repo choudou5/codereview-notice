@@ -135,7 +135,7 @@
   width: 98%;
 }
 .jcZDsC img{ 
-  width: 100%;
+  max-width: 100%;
 }
 
 @media screen and (max-width: 600px) {

@@ -15,6 +15,7 @@
 	<meta http-equiv="Cache" content="no-cache">
     <link rel='stylesheet' type='text/css' href='/css/index.css'>
     <link type="text/css" rel="stylesheet" href="/css/notice-form.css">
+    <link type="text/css" rel="stylesheet" href="/css/qq-msg.css">
     <title>公告详情</title>
 </head>
 <body>
@@ -41,7 +42,9 @@
     	，时间： ${notice.createTime }</span>
     </div>
     <br>
-    ${notice.content }
+    <div style="border: 1px solid #CCCCCC;">${notice.content }</div>
+    <br><br>
+ 	<%@include file="/WEB-INF/view/include/qq_msg.jsp" %>
   </div>
 </section>
 

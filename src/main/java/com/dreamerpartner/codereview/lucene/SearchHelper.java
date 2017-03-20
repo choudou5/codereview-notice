@@ -164,8 +164,7 @@ public class SearchHelper {
 			  Query query = parser.parse(searchStr);
 	
 			  TopGroups<BytesRef> groupResult = groupingSearch.search(indexSearcher, query, (pageNo-1)*pageSize, pageSize);
-			  System.out.println("搜索命中数：" + groupResult.totalHitCount);
-			  System.out.println("搜索结果分组数：" + groupResult.groups.length);
+			  System.out.println("搜索命中数：" + groupResult.totalHitCount+", 搜索结果分组数：" + groupResult.groups.length);
 			  
 			  List<Document> groupData = null;
 			  for (GroupDocs<BytesRef> groupDocs : groupResult.groups) {
