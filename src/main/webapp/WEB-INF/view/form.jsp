@@ -15,6 +15,7 @@
 	<meta http-equiv="Cache" content="no-cache">
     <link type="text/css" rel="stylesheet" href="/js/umeditor1.2.3/themes/default/_css/umeditor.css">
     <link rel='stylesheet' type='text/css' href='/css/index.css'>
+    <link rel='stylesheet' type='text/css' href='/js/jBox-0.4.7/jBox.Notice.css'>
     <link type="text/css" rel="stylesheet" href="/css/notice-form.css">
     <title>添加公告</title>
 </head>
@@ -84,76 +85,36 @@
 </section>
 
 <script type="text/javascript" src="/js/umeditor1.2.3/third-party/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jBox-0.4.7/jBox.js"></script>
+<script type="text/javascript" src="/js/jBox-0.4.7/jBox.Notice.min.js"></script>
 <script type="text/javascript" src="/js/umeditor1.2.3/third-party/template.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="/js/umeditor1.2.3/umeditor.config.js"></script>
 <script type="text/javascript" charset="utf-8" src="/js/umeditor1.2.3/editor_api.js"></script>
 <script type="text/javascript" src="/js/umeditor1.2.3/lang/zh-cn/zh-cn.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.js"></script>
-
 <script type="text/javascript">
-
-	$("#noticeForm").validate({
-		rules:{
-			groupKey:{
-				required:true
-			},
-			title:{
-				required: true,
-				minlength:6,
-				maxlength:25
-			},
-			adminAccount: {required: true, remote: "/codereviewnotice?view=ajaxValidAccount"}
-		},
-		messages: {
-			adminAccount: {remote: "账号不正确，请联系管理员", required: "请输入管理员账号"}
-		},
-		errorClass: "help-inline",
-		errorElement: "span",
-		highlight:function(element, errorClass, validClass) {
-			$(element).parents('.control-group').addClass('error');
-		},
-		unhighlight: function(element, errorClass, validClass) {
-			$(element).parents('.control-group').removeClass('error');
-			$(element).parents('.control-group').addClass('success');
-		},
-		submitHandler:function() {
-            ajaxSubmitForm();
-       },
-	});
-	
-	function submitForm(){
-		$("#noticeForm").valid();
-	}
-	
-	function ajaxSubmitForm() {
-		var param = $("#noticeForm").serialize();
-        var url = "/codereviewnotice?view=formSave";
-        $.ajax({
-            type: "post",
-            cache: false,
-            dataType: "json",
-            url: url,
-            data: param,
-            beforeSend: function(XMLHttpRequest){
-                console.log("ajaxSubmitForm beforeSend");
-            },
-            success: function(data, textStatus){
-            	console.log("ajaxSubmitForm success:"+data);
-            	if(data.status == 200){
-            		alert(data.content);
-            		window.location.reload();
-            	}else{
-            		alert(data.content);
-            	}
-            },
-            complete: function(XMLHttpRequest, textStatus){
-            	console.log("ajaxSubmitForm complete");
-            }
-        });
-    }
-
     //实例化编辑器
     var um = UM.getEditor('contentEditor');
+ 
+    var noticeObj;
+    function notice(msg){
+    	noticeObj = new jBox('Notice', {
+	    	id: "jBoxMsgNotice",
+	        content: msg,
+	        autoClose: 12000,
+	        color: 'black',
+	        attributes: {                // Note that attributes can only be 'left' or 'right' when using numbers for position, e.g. {x: 300, y: 20}
+	            x: 'left',                 // Horizontal position, use 'left' or 'right'
+	            y: 'bottom'                   // Vertical position, use 'top' or 'bottom'
+	        },
+        });
+    }
+    function noticeClose(){
+    	if(noticeObj != null){
+    		noticeObj.destroy();
+    		noticeObj = null;
+    	}
+    }
 </script>
 
 </html>

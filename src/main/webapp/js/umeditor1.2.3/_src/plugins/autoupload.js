@@ -12,6 +12,7 @@ UM.plugins['autoupload'] = function () {
     me.setOpt('pasteImageEnabled', true);
     me.setOpt('dropFileEnabled', true);
     var sendAndInsertImage = function (file, editor) {
+    	notice("上传成功中...");
         //模拟数据
         var fd = new FormData();
         fd.append(editor.options.imageFieldName || 'upfile', file, file.name || ('blob.' + file.type.substr('image/'.length)));
@@ -20,10 +21,12 @@ UM.plugins['autoupload'] = function () {
         xhr.open("post", me.options.imageUrl, true);
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.addEventListener('load', function (e) {
+        	noticeClose();
             try {
                 var json = eval('('+e.target.response+')'),
                     link = json.url,
                     picLink = me.options.imagePath + link;
+                
                 editor.execCommand('insertimage', {
                     src: picLink,
                     _src: picLink
