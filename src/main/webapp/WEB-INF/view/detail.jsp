@@ -13,6 +13,7 @@
 	<meta http-equiv="Pragma" content="no-cache">
 	<meta http-equiv="Cache-control" content="no-cache">
 	<meta http-equiv="Cache" content="no-cache">
+    <link type="text/css" rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel='stylesheet' type='text/css' href='/css/index.css'>
     <link type="text/css" rel="stylesheet" href="/css/notice-form.css">
     <link type="text/css" rel="stylesheet" href="/css/msgBox.css">

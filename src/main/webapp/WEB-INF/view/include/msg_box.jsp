@@ -16,43 +16,17 @@
         </div>
     </form>
     <div class="list">
-        <h3><span>大家在说</span></h3>
+        <h3><span>精彩评论</span></h3>
         <ul>
             <li>
-
                 <div class="userPic"><img src="http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg" /></div>
                 <div class="content">
-                    <div class="userName"><a href="javascript:;">永不上线</a>:</div>
-                    <div class="msgInfo">新增删除广播功能。</div>
+                    <div class="userName">
+                    	<a href="javascript:;">永不上线</a>
+                    	<a class="like" href="javascript:;"><i class="fa fa-thumbs-o-up"></i>&nbsp;<span>0</span></a>
+                    </div>
                     <div class="times"><span>07月05日 15:14</span><a class="del" href="javascript:;">删除</a></div>
-                </div>
-
-            </li>
-            <li>
-                <div class="userPic"><img src="http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg" /></div>
-                <div class="content">
-                    <div class="userName"><a href="javascript:;">永不上线</a>:</div>
-                    <div class="msgInfo">新增Ctrl+Enter快捷键发送广播。</div>
-                    <div class="times"><span>07月05日 12:20</span><a class="del" href="javascript:;">删除</a></div>
-
-                </div>
-            </li>
-            <li>
-                <div class="userPic"><img src="http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg" /></div>
-                <div class="content">
-                    <div class="userName"><a href="javascript:;">永不上线</a>:</div>
-                    <div class="msgInfo">新增选择头像功能。</div>
-
-                    <div class="times"><span>07月05日 12:08</span><a class="del" href="javascript:;">删除</a></div>
-                </div>
-            </li>
-            <li>
-                <div class="userPic"><img src="http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg" /></div>
-                <div class="content">
-                    <div class="userName"><a href="javascript:;">永不上线</a>:</div>
-
-                    <div class="msgInfo">增加了记录广播时间的功能。</div>
-                    <div class="times"><span>07月04日 16:55</span><a class="del" href="javascript:;">删除</a></div>
+                    <div class="msgInfo">新增删除广播功能。</div>
                 </div>
             </li>
         </ul>

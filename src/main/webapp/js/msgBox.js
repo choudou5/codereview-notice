@@ -66,7 +66,6 @@ EventUtil.addLoadHandler(function ()
 	var oUl = get.byTagName("ul", oList)[0];
 	var aLi = get.byTagName("li", oList);
 	var aFtxt = get.byClass("f-text", oMsgBox);
-	var aImg = get.byTagName("img", get.byId("face"));
 	var bSend = false;
 	var timer = null;
 	var oTmp = "";
@@ -113,17 +112,16 @@ EventUtil.addLoadHandler(function ()
 			var oDate = new Date();
 			oLi.innerHTML = "<div class=\"userPic\"><img src=\"http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg\"></div>\
 							 <div class=\"content\">\
-							 	<div class=\"userName\"><a href=\"javascript:;\">" + oUserName.value + "</a>:</div>\
-								<div class=\"msgInfo\">" + oConBox.value.replace(/<[^>]*>|&nbsp;/ig, "") + "</div>\
+							 	<div class=\"userName\"><a href=\"javascript:;\">" + oUserName.value + "</a><a class=\"like\" href=\"javascript:;\"><i class=\"fa fa-thumbs-o-up\"></i>&nbsp;<span>0</span></a></div>\
 								<div class=\"times\"><span>" + format(oDate.getMonth() + 1) + "\u6708" + format(oDate.getDate()) + "\u65e5 " + format(oDate.getHours()) + ":" + format(oDate.getMinutes()) + "</span><a class=\"del\" href=\"javascript:;\">\u5220\u9664</a></div>\
+								<div class=\"msgInfo\">" + oConBox.value.replace(/<[^>]*>|&nbsp;/ig, "") + "</div>\
 							 </div>";
 			//插入元素
 			aLi.length ? oUl.insertBefore(oLi, aLi[0]) : oUl.appendChild(oLi);
 			
 			//重置表单
 			get.byTagName("form", oMsgBox)[0].reset();
-			for (i = 0; i < aImg.length; i++) aImg[i].className = "";
-			aImg[0].className = "current";
+			oConBox.focus();
 			
 			//将元素高度保存
 			var iHeight = oLi.clientHeight - parseFloat(css(oLi, "paddingTop")) - parseFloat(css(oLi, "paddingBottom"));
@@ -252,23 +250,5 @@ EventUtil.addLoadHandler(function ()
 	function format(str)
 	{
 		return str.toString().replace(/^(\d)$/,"0$1")
-	}
-	
-	//头像
-	for (i = 0; i < aImg.length; i++)
-	{
-		aImg[i].onmouseover = function ()
-		{
-			this.className += " hover"
-		};
-		aImg[i].onmouseout = function ()
-		{
-			this.className = this.className.replace(/\s?hover/,"")
-		};
-		aImg[i].onclick = function ()
-		{
-			for (i = 0; i < aImg.length; i++) aImg[i].className = "";
-			this.className = "current"	
-		}
 	}
 });
