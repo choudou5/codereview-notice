@@ -44,7 +44,6 @@ UM.commands['insertimage'] = {
                 html.push(str);
             }
         }
-
         me.execCommand('insertHtml', html.join(''), true);
     }
 };
