@@ -1,13 +1,13 @@
-package com.dreamerpartner.codereview.entity;
+package com.dreamerpartner.codereview.model;
 
 import java.io.Serializable;
 
 /**
- * 评论 Entity
+ * 评论 模型
  * @author xuhaowen
  * @date 2017年3月18日
  */
-public class CommentEntity implements Serializable{
+public class CommentModel implements Serializable{
 
 	private static final long serialVersionUID = 4351870839260282289L;
 	
@@ -15,6 +15,7 @@ public class CommentEntity implements Serializable{
 	private String noticeId;
 	private String content;
 	private String createTime;
+	private int thumbsUpCount; //点赞次数
 	
 	public String getId() {
 		return id;
@@ -39,6 +40,12 @@ public class CommentEntity implements Serializable{
 	}
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+	public int getThumbsUpCount() {
+		return thumbsUpCount;
+	}
+	public void setThumbsUpCount(int thumbsUpCount) {
+		this.thumbsUpCount = thumbsUpCount;
 	}
 	
 }

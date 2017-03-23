@@ -8,12 +8,15 @@ import java.util.Map;
 import javax.servlet.ServletException;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
-import com.dreamerpartner.codereview.convert.NoticeEntityConvert;
-import com.dreamerpartner.codereview.entity.NoticeEntity;
+import com.dreamerpartner.codereview.convert.NoticeModelConvert;
 import com.dreamerpartner.codereview.lucene.IndexHelper;
 import com.dreamerpartner.codereview.lucene.SearchHelper;
+import com.dreamerpartner.codereview.model.NoticeModel;
+import com.dreamerpartner.codereview.page.PageBean;
 import com.dreamerpartner.codereview.util.DateUtil;
 import com.dreamerpartner.codereview.util.PropertiesUtil;
 import com.dreamerpartner.codereview.vo.IndexNoticeGroupVo;
@@ -25,23 +28,25 @@ import com.dreamerpartner.codereview.vo.IndexNoticeGroupVo;
  */
 public class NoticeService {
 
+	public static final String MODULE = "notice";
+	
 	/**
 	 * 初始化索引
-	 * @param entity
+	 * @param model
 	 * @throws ServletException 
 	 * @throws IOException
 	 */
 	public static void initIndex() throws ServletException{
-		NoticeEntity entity = new NoticeEntity();
-		entity.setId("0");
-		entity.setCreateTime(DateUtil.getDateStr());
-		entity.setGroupKey("");
-		entity.setContent("");
-		entity.setType("");
-		entity.setTitle("");
-		NoticeEntityConvert convert = new NoticeEntityConvert();
+		NoticeModel model = new NoticeModel();
+		model.setId("0");
+		model.setCreateTime(DateUtil.getDateStr());
+		model.setGroupKey("");
+		model.setContent("");
+		model.setType("");
+		model.setTitle("");
+		NoticeModelConvert convert = new NoticeModelConvert();
 		try {
-			IndexHelper.add(convert.convert(entity), true);
+			IndexHelper.add(MODULE, convert.convert(model), true);
 		} catch (Exception e) {
 			throw new ServletException("初始化 Notice 索引失败.", e);
 		}
@@ -49,28 +54,38 @@ public class NoticeService {
 	
 	/**
 	 * 保存
-	 * @param entity
+	 * @param model
 	 * @throws IOException
 	 */
-	public static void save(NoticeEntity entity) throws IOException{
-		boolean isNew = entity.getId()==null;
+	public static void save(NoticeModel model) throws IOException{
+		boolean isNew = model.getId()==null;
 		if(isNew){
-			entity.setId(DateUtil.getTimeStr());
+			model.setId(DateUtil.getTimeStr());
 		}
-		entity.setCreateTime(DateUtil.getDateStr());
-		NoticeEntityConvert convert = new NoticeEntityConvert();
-		IndexHelper.add(convert.convert(entity), isNew);
+		model.setCreateTime(DateUtil.getDateStr());
+		NoticeModelConvert convert = new NoticeModelConvert();
+		IndexHelper.add(MODULE, convert.convert(model), isNew);
 	}
 	
 	/**
-	 * 单条查询
-	 * @param entity
+	 * 保存
+	 * @param model
 	 * @throws IOException
 	 */
-	public static NoticeEntity get(String id) throws IOException{
-		Document doc = SearchHelper.getById(id);
+	public static void deleteById(String id) throws IOException{
+		IndexHelper.delete(MODULE, id);
+	}
+	
+	
+	/**
+	 * 单条查询
+	 * @param model
+	 * @throws IOException
+	 */
+	public static NoticeModel get(String id) throws IOException{
+		Document doc = SearchHelper.getById(MODULE, id);
 		if(doc != null){
-			NoticeEntityConvert convert = new NoticeEntityConvert();
+			NoticeModelConvert convert = new NoticeModelConvert();
 			return convert.convert(doc, false);
 		}
 		return null;
@@ -87,29 +102,31 @@ public class NoticeService {
 		boolean desc = true;
 		
 		//search good type
-		Map<String, List<Document>> goodGroupData = SearchHelper.group(groupField, searchField, "good", 1, pageSize, orderField, orderFieldType, desc);
-		Map<String ,List<NoticeEntity>> goodGroupEntitys = convertGroupData(goodGroupData);
+		Map<String, List<Document>> goodGroupData = SearchHelper.group(MODULE, groupField, searchField, "good", 1, pageSize, orderField, orderFieldType, desc);
+		Map<String ,List<NoticeModel>> goodGroupEntitys = convertGroupData(goodGroupData);
 		//search good type
-		Map<String, List<Document>> badGroupData = SearchHelper.group(groupField, searchField, "bad", 1, pageSize, orderField, orderFieldType, desc);
-		Map<String ,List<NoticeEntity>> badGroupEntitys = convertGroupData(badGroupData);
+		Map<String, List<Document>> badGroupData = SearchHelper.group(MODULE, groupField, searchField, "bad", 1, pageSize, orderField, orderFieldType, desc);
+		Map<String ,List<NoticeModel>> badGroupEntitys = convertGroupData(badGroupData);
 		return new IndexNoticeGroupVo(goodGroupEntitys, badGroupEntitys);
 	}
 	
 	
 	/**
 	 * 获得 分组数据
-	 * @param groupKey 分组key
-	 * @param type 类型
+	 * @param groupKey
+	 * @param type
+	 * @param pageNo
+	 * @param pageSize
 	 * @return
 	 */
-	public static List<NoticeEntity> getGroupList(String groupKey, String type){
-		int pageSize = PropertiesUtil.getInteger("index.group.pagesize", 10);
-		NoticeEntityConvert convert = new NoticeEntityConvert();
+	public static List<NoticeModel> getGroupList(String groupKey, String type, int pageNo, int pageSize){
+		NoticeModelConvert convert = new NoticeModelConvert();
 		String[] searchFields = new String[]{"groupKey", "type"};
 		String[] searchStrs= new String[]{groupKey, type};
+		Sort sort = new Sort(new SortField("id", Type.STRING));
 		//search
-		List<Document> badDocs = SearchHelper.search(searchFields, searchStrs, pageSize);
-		return convert.converts(badDocs);
+		PageBean<Document> badDocs = SearchHelper.search(MODULE, searchFields, searchStrs, sort, pageNo, pageSize);
+		return convert.converts(badDocs.getResult());
 	}
 	
 	
@@ -118,13 +135,13 @@ public class NoticeService {
 	 * @param groupData
 	 * @return
 	 */
-	private static Map<String ,List<NoticeEntity>> convertGroupData(Map<String, List<Document>> groupData){
-		Map<String ,List<NoticeEntity>> result = new LinkedHashMap<String, List<NoticeEntity>>(groupData.size());
-		NoticeEntityConvert convert = new NoticeEntityConvert();
+	private static Map<String ,List<NoticeModel>> convertGroupData(Map<String, List<Document>> groupData){
+		Map<String ,List<NoticeModel>> result = new LinkedHashMap<String, List<NoticeModel>>(groupData.size());
+		NoticeModelConvert convert = new NoticeModelConvert();
 		for (String groupKey : groupData.keySet()) {
 			List<Document> docs = groupData.get(groupKey);
-			List<NoticeEntity> entitys = convert.converts(docs);
-			result.put(groupKey, entitys);
+			List<NoticeModel> models = convert.converts(docs);
+			result.put(groupKey, models);
 		}
 		return result;
 	}

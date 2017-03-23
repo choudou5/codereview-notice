@@ -38,7 +38,7 @@
     	<span class="explain">把您的代码片段截图 粘贴上来吧！</span>
     </div>
     <div class="euuwmB">
-      <form id="noticeForm" action="" method="post">
+      <form id="noticeForm" action="#" method="post">
 		   <div class="item kKOtfr">
 		      	<div class="input-group">
 		      		<span>分组:<font color="red">*</font></span>
@@ -92,6 +92,7 @@
 <script type="text/javascript" charset="utf-8" src="/js/umeditor1.2.3/editor_api.js"></script>
 <script type="text/javascript" src="/js/umeditor1.2.3/lang/zh-cn/zh-cn.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.js"></script>
+<script type="text/javascript" src="/js/form.js"></script>
 <script type="text/javascript">
     //实例化编辑器
     var um = UM.getEditor('contentEditor');

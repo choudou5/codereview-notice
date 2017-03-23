@@ -42,8 +42,8 @@ public class LuceneUtil {
 	 * 获得 索引地址
 	 * @return
 	 */
-	public static String getIndexPath(){
-		return INDEX_PATH;
+	public static String getIndexPath(String module){
+		return INDEX_PATH+"/"+module;
 	}
 	
 	/**

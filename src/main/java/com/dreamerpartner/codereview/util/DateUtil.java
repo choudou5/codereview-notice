@@ -52,6 +52,19 @@ public class DateUtil {
 	
 	/**
 	 * 获得日期 字符串
+	 * @return yyyyMMddHHmmssSSS
+	 */
+	public static String getTimeFullStr(){
+		SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		try {
+			return dateTimeFormatter.format(new Date());
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * 获得日期 字符串
 	 * @return yyyy-MM-dd HH:mm
 	 */
 	public static String getDateStr(){

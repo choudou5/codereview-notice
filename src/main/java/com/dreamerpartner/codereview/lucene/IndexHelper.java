@@ -62,7 +62,7 @@ public class IndexHelper {
     	  }
     	  docs.add(doc);
       }
-      adds(docs);
+      adds("test", docs);
     } catch (IOException e) {
       System.out.println(" caught a " + e.getClass() +  "\n with message: " + e.getMessage());
     }finally{
@@ -73,27 +73,29 @@ public class IndexHelper {
   
   /**
    * 添加数据
+   * @param module 模块
    * @param doc
    * @param isNew
    * @throws IOException 
    */
-  public static void add(Document doc, boolean isNew) throws IOException{
-	  add(doc, isNew, new Term("id", doc.get("id")));
+  public static void add(String module, Document doc, boolean isNew) throws IOException{
+	  add(module, doc, isNew, new Term("id", doc.get("id")));
   }
   
   /**
    * 添加数据
+   * @param module 模块
    * @param doc
    * @param isNew
    * @param delTerm del标识
    * @throws IOException 
    */
   @SuppressWarnings("deprecation")
-  public static void add(Document doc, boolean isNew, Term delTerm) throws IOException{
+  public static void add(String module, Document doc, boolean isNew, Term delTerm) throws IOException{
 	  long beginTime = System.currentTimeMillis();
 	  IndexWriter writer = null;
 	  try {
-	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath()));
+	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath(module)));
 	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
 	      iwc.setMaxBufferedDocs(100);
@@ -105,7 +107,7 @@ public class IndexHelper {
 	      } else {
 	    	  writer.updateDocument(delTerm, doc);
 	      }
-	     //合并数据
+	     //提交数据
 	     writer.commit();
 	    }finally{
 	    	long endTime = System.currentTimeMillis();
@@ -116,26 +118,28 @@ public class IndexHelper {
   
   /**
    * 添加 集合数据
+   * @param module 模块
    * @param docs
    * @throws IOException 
    */
-  public static void adds(List<Document> docs) throws IOException{
-	 adds(docs, true, null);
+  public static void adds(String module, List<Document> docs) throws IOException{
+	 adds(module, docs, true, null);
   }
   
   /**
    * 添加 集合数据
+   * @param module 模块
    * @param docs
    * @param isNew
    * @param delTerm del标识
    * @throws IOException 
    */
   @SuppressWarnings("deprecation")
-  public static void adds(List<Document> docs, boolean isNew, Term delTerm) throws IOException{
+  public static void adds(String module, List<Document> docs, boolean isNew, Term delTerm) throws IOException{
 	  long beginTime = System.currentTimeMillis();
 	  IndexWriter writer = null;
 	  try {
-	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath()));
+	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath(module)));
 	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
 	      iwc.setMaxBufferedDocs(100);
@@ -156,15 +160,62 @@ public class IndexHelper {
   }
   
   /**
-   * 合并数据（优化碎片）
+   * 删除数据
+   * @param module 模块
+   * @param id
+   * @throws IOException
+   */
+  public static void delete(String module, String id) throws IOException{
+	  delete(module, new Term[]{new Term("id", id)});
+  }
+  
+  /**
+   * 删除数据
+   * @param module 模块
+   * @param term 语句
+   * @throws IOException
+   */
+  public static void delete(String module, Term term) throws IOException{
+	 delete(module, new Term[]{term});
+  }
+  
+  /**
+   * 删除数据
+   * @param module 模块
+   * @param term 语句
    * @throws IOException
    */
   @SuppressWarnings("deprecation")
-  public static void merge() throws IOException{
+  public static void delete(String module, Term ...term) throws IOException{
 	  long beginTime = System.currentTimeMillis();
 	  IndexWriter writer = null;
 	  try {
-	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath()));
+	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath(module)));
+	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
+	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
+	      iwc.setMaxBufferedDocs(100);
+	      iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
+	      writer = new IndexWriter(dir, iwc);
+	      writer.deleteDocuments(term);
+	      writer.commit();
+	    }finally{
+	    	long endTime = System.currentTimeMillis();
+		    logger.debug(module+" delete "+(endTime-beginTime)+" milliseconds.");
+			if(writer != null) writer.close();
+	    }
+  }
+  
+  /**
+   * 合并数据（优化碎片）
+   * @param module 模块
+   * @throws IOException
+   */
+  @SuppressWarnings("deprecation")
+  public static void merge(String module) throws IOException{
+	  long beginTime = System.currentTimeMillis();
+	  IndexWriter writer = null;
+	  try {
+	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath(module)));
 	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
 	      iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);

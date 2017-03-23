@@ -1,15 +1,15 @@
-package com.dreamerpartner.codereview.entity;
+package com.dreamerpartner.codereview.model;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 公告 Entity
+ * 公告 模型
  * @author xuhaowen
  * @date 2017年3月18日
  */
-public class NoticeEntity implements Serializable{
+public class NoticeModel implements Serializable{
 
 	private static final long serialVersionUID = 9047384879926533459L;
 	
@@ -20,7 +20,7 @@ public class NoticeEntity implements Serializable{
 	private String groupKey;
 	private String createTime;
 	
-	public static boolean validate(NoticeEntity entity){
+	public static boolean validate(NoticeModel entity){
 		if(entity == null){
 			return false;
 		}

@@ -127,7 +127,7 @@
 	              </div>
 	              <div class="euuwmB" data-reactid="187">
 	                <div class="item kKOtfr" data-reactid="195">
-	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?view=form&type=good&groupKey=${group }" target="_blank">立即创建</a></h3>
+	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?module=notice&action=form&type=good&groupKey=${group }" target="_blank">立即创建</a></h3>
 	               		<c:if test="${empty goodNotices[group] }">
 	               			<p>
 		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
@@ -136,14 +136,14 @@
 	               		<c:if test="${not empty goodNotices[group] }">
 		               		<ul>
 		               			<c:forEach var="notice" items="${goodNotices[group] }">
-						        	<li><a href="?view=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
+						        	<li><a href="?module=notice&action=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
 		               			</c:forEach>
 						    </ul>
 	               		</c:if>
 	                    
 	                </div>
 	                <div class="item kKOtfr" data-reactid="195">
-	                	<h3 class="item-title jPzqaA" data-reactid="189">待改善Code <a href="?view=form&type=bad&groupKey=${group }" target="_blank">立即创建</a></h3>
+	                	<h3 class="item-title jPzqaA" data-reactid="189">待改善Code <a href="?module=notice&action=form&type=bad&groupKey=${group }" target="_blank">立即创建</a></h3>
 	                	<c:if test="${empty badNotices[group] }">
 	               			<p>
 		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
@@ -152,7 +152,7 @@
 	               		<c:if test="${not empty badNotices[group] }">
 		               		<ul>
 		               			<c:forEach var="notice" items="${badNotices[group] }">
-						        	<li><a href="?view=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
+						        	<li><a href="?module=notice&action=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
 		               			</c:forEach>
 						    </ul>
 	               		</c:if>

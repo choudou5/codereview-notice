@@ -17,8 +17,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dreamerpartner.codereview.entity.NoticeEntity;
 import com.dreamerpartner.codereview.lucene.LuceneUtil;
+import com.dreamerpartner.codereview.model.CommentModel;
+import com.dreamerpartner.codereview.model.NoticeModel;
+import com.dreamerpartner.codereview.page.PageBean;
+import com.dreamerpartner.codereview.service.CommentService;
 import com.dreamerpartner.codereview.service.NoticeService;
 import com.dreamerpartner.codereview.util.JsonUtil;
 import com.dreamerpartner.codereview.util.OSSClientUtil;
@@ -56,12 +59,6 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	
 	public final static String GROUP_KEY = "groupKey";
 	public final static String FILE_PATH = "/WEB-INF/view/";
-	
-	public final static String PAGE_INDEX = "index";
-	public final static String PAGE_DETAIL = "detail";
-	public final static String PAGE_FORM = "form";
-	public final static String PAGE_FORM_SAVE = "formSave";
-	public final static String PAGE_AJAX_VALID_ACCOUNT = "ajaxValidAccount";
 	
 	public CodeReviewNoticeServlet() {
 		super();
@@ -116,47 +113,163 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setAttribute("version", "1.0.0");
-		String view = request.getParameter("view");
-		if(StringUtils.isBlank(view))
-			view = PAGE_INDEX;
+		String module = request.getParameter("module");
 		
-		switch (view) {
-		case PAGE_INDEX:
-			Action.viewIndex(request, response);
+		if(StringUtils.isBlank(module))
+			module = "index";
+		
+		switch (module) {
+		case "index":
+			viewIndex(request, response);
 			break;
-		case PAGE_DETAIL:
-			Action.viewDetail(request, response);
+		case "notice": //公告
+			NoticeAction.control(request, response);
 			break;
-		case PAGE_FORM:
-			Action.viewForm(request, response);
-			break;
-		case PAGE_FORM_SAVE:
-			Action.formSave(request, response);
-			break;
-		case PAGE_AJAX_VALID_ACCOUNT:
-			Action.ajaxValidAccount(request, response);
+		case "comment": //评论
+			CommentAction.control(request, response);
 			break;
 		default:
-			Action.viewIndex(request, response);
+			viewIndex(request, response);
 		}
 	}
 	
+	/**
+	 * 首页
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public static void viewIndex(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		request.setAttribute("indexNoticeGroupVo", NoticeService.getIndexNoticeGroupVo());
+		request.setAttribute("groupList", GROUP_LIST);
+		request.setAttribute("groupColors", GROUP_COLORS);
+		request.setAttribute("groupBgPatterns", GROUP_BG_PATTERN);
+		request.getRequestDispatcher(FILE_PATH+"index.jsp").forward(request, response);
+	}
 	
-	static class Action{
+	/**
+	 * 评论 action
+	 */
+	static class CommentAction{
+		
+		public static void control(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String action = request.getParameter("action");
+			switch (action) {
+			case "push":
+				push(request, response);
+				break;
+			case "list":
+				list(request, response);
+				break;
+			case "thumbsUp":
+				thumbsUp(request, response);
+				break;
+			default:
+				writeJson(response, 404, "找不到请求");
+			}
+		}
 		
 		/**
-		 * 首页
+		 * 评论
 		 * @param request
 		 * @param response
 		 * @throws ServletException
 		 * @throws IOException
 		 */
-		public static void viewIndex(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			request.setAttribute("indexNoticeGroupVo", NoticeService.getIndexNoticeGroupVo());
-			request.setAttribute("groupList", GROUP_LIST);
-			request.setAttribute("groupColors", GROUP_COLORS);
-			request.setAttribute("groupBgPatterns", GROUP_BG_PATTERN);
-			request.getRequestDispatcher(FILE_PATH+"index.jsp").forward(request, response);
+		protected static void push(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String noticeId = request.getParameter("noticeId");
+			String content = request.getParameter("content");
+			//参数校验
+			if(StringUtils.isBlank(noticeId) || StringUtils.isBlank(content)){
+				writeJson(response, 403, "提交参数不完整！");
+				return;
+			}
+			try {
+				CommentService.add(noticeId, content);
+				writeJson(response, 200, "评论成功！");
+			} catch (Exception e) {
+				writeJson(response, 400, "评论失败！", e);
+			}
+		}
+		
+		/**
+		 * 评论列表
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+		protected static void list(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String noticeId = request.getParameter("noticeId");
+			String pageNoStr = request.getParameter("pageNo");
+			int pageNo = 1, pageSize = 30;
+			//参数校验
+			if(StringUtils.isBlank(noticeId)){
+				writeJson(response, 403, "提交参数不完整！");
+				return;
+			}
+			try {
+				if(StringUtils.isNotBlank(pageNoStr))
+					pageNo = Integer.parseInt(pageNoStr);
+				
+				PageBean<CommentModel> result = CommentService.list(noticeId, pageNo, pageSize);
+				writeJson(response, 200, result);
+			} catch (Exception e) {
+				writeJson(response, 400, "获取评论失败！", e);
+			}
+		}
+		
+		/**
+		 * 点赞
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+		protected static void thumbsUp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String noticeId = request.getParameter("noticeId");
+			//参数校验
+			if(StringUtils.isBlank(noticeId)){
+				writeJson(response, 403, "提交参数不完整！");
+				return;
+			}
+			try {
+				//
+				writeJson(response, 200, "点赞成功！");
+			} catch (Exception e) {
+				writeJson(response, 400, "获取评论失败！", e);
+			}
+		}
+	}
+	
+	
+	/**
+	 * 公告 action
+	 */
+	static class NoticeAction{
+		
+		public static void control(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String action = request.getParameter("action");
+			switch (action) {
+			case "detail":
+				viewDetail(request, response);
+				break;
+			case "form":
+				viewForm(request, response);
+				break;
+			case "formSave":
+				formSave(request, response);
+				break;
+			case "ajaxDeleteData":
+				ajaxDeleteData(request, response);
+				break;
+			case "ajaxValidAccount":
+				ajaxValidAccount(request, response);
+				break;
+			default:
+				viewIndex(request, response);
+			}
 		}
 		
 		/**
@@ -166,7 +279,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @throws ServletException
 		 * @throws IOException 
 		 */
-		public static void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		protected static void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			String id = request.getParameter("id");
 			if(StringUtils.isNotBlank(id)){
 				request.setAttribute("notice", NoticeService.get(id));
@@ -181,7 +294,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @throws ServletException
 		 * @throws IOException 
 		 */
-		public static void viewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		protected static void viewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			response.setHeader("Cache-Control","no-cache"); 
 			response.setHeader("Pragma","no-cache"); 
 			response.setDateHeader("Expires", 0); 
@@ -199,11 +312,11 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @throws ServletException
 		 * @throws IOException
 		 */
-		public static void formSave(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			NoticeEntity entity = buildNoticeEnitty(request);
+		protected static void formSave(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			NoticeModel entity = buildNoticeEnitty(request);
 			logger.debug("entity:"+entity);
 			//参数校验
-			if(NoticeEntity.validate(entity)){
+			if(NoticeModel.validate(entity)){
 				writeJson(response, 403, "提交参数不完整！请填写完整.");
 				return;
 			}
@@ -218,7 +331,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 				NoticeService.save(entity);
 				writeJson(response, 200, "保存成功！");
 			} catch (Exception e) {
-				writeJson(response, 400, "失败成功！", e);
+				writeJson(response, 400, "保存失败！", e);
 			}
 		}
 		
@@ -229,7 +342,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @throws ServletException
 		 * @throws IOException 
 		 */
-		public static void ajaxValidAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		protected static void ajaxValidAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			String adminAccount = request.getParameter("adminAccount"); // AJAX验证，成功返回true
 			if (StringUtils.isNotBlank(adminAccount)){
 				response.getOutputStream().print(adminAccount.equals(ADMIN)?"true":"false");
@@ -238,13 +351,41 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			}
 		}
 		
+		/**
+		 * 异步 删除数据
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException 
+		 */
+		protected static void ajaxDeleteData(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String id = request.getParameter("id");
+			//参数校验
+			if(StringUtils.isBlank(id)){
+				writeJson(response, 403, "提交参数不完整！");
+				return;
+			}
+			//权限校验
+			if(!isPermission(request)){
+				writeJson(response, 403, "账号不正确！请联系管理员.");
+				return;
+			}
+			
+			//删除
+			try {
+				NoticeService.deleteById(id);
+				writeJson(response, 200, "删除成功！");
+			} catch (Exception e) {
+				writeJson(response, 400, "删除失败！", e);
+			}
+		}
 		
-		private static NoticeEntity buildNoticeEnitty(HttpServletRequest request){
+		private static NoticeModel buildNoticeEnitty(HttpServletRequest request){
 			String groupKey = request.getParameter("groupKey");
 			if(StringUtils.isBlank(groupKey)){
 				return null;
 			}
-			NoticeEntity entity = new NoticeEntity();
+			NoticeModel entity = new NoticeModel();
 			entity.setGroupKey(groupKey);
 			entity.setTitle(request.getParameter("title"));
 			entity.setContent(request.getParameter("content"));
@@ -263,42 +404,42 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			return ADMIN.equals(account)?true:false;
 		}
 		
-		/**
-		 * 输出json
-		 * @param response
-		 * @param status 状态
-		 * @param content 输出内容
-		 */
-		private static void writeJson(HttpServletResponse response, int status, Object content){
-			writeJson(response, status, content, null);
-		}
-		
-		/**
-		 * 输出json
-		 * @param response
-		 * @param status 状态
-		 * @param content 输出内容
-		 * @param ex
-		 */
-		private static void writeJson(HttpServletResponse response, int status, Object content, Exception ex){
-			response.setCharacterEncoding("UTF-8");
-			response.setContentType("application/json; charset=utf-8");
-			Map<String, Object> result = new HashMap<String, Object>(2);
-			result.put("status", status);
-			result.put("content", content);
-			if(ex != null){
-				result.put("error", ex.getMessage());
-			}
-			PrintWriter out = null;
-			try {
-			    out = response.getWriter();
-			    out.write(JsonUtil.toString(result));
-			} catch (IOException e) {
-			    e.printStackTrace();
-			} finally {
-			    if (out != null) out.close();
-			}
-		}
 	}
 	
+	/**
+	 * 输出json
+	 * @param response
+	 * @param status 状态
+	 * @param content 输出内容
+	 */
+	private static void writeJson(HttpServletResponse response, int status, Object content){
+		writeJson(response, status, content, null);
+	}
+	
+	/**
+	 * 输出json
+	 * @param response
+	 * @param status 状态
+	 * @param content 输出内容
+	 * @param ex
+	 */
+	private static void writeJson(HttpServletResponse response, int status, Object content, Exception ex){
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("application/json; charset=utf-8");
+		Map<String, Object> result = new HashMap<String, Object>(2);
+		result.put("status", status);
+		result.put("content", content);
+		if(ex != null){
+			result.put("error", ex.getMessage());
+		}
+		PrintWriter out = null;
+		try {
+		    out = response.getWriter();
+		    out.write(JsonUtil.toString(result));
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    if (out != null) out.close();
+		}
+	}
 }

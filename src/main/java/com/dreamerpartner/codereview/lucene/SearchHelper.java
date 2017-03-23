@@ -20,12 +20,10 @@ package com.dreamerpartner.codereview.lucene;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +47,16 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopFieldCollector;
 import org.apache.lucene.search.grouping.GroupDocs;
 import org.apache.lucene.search.grouping.GroupingSearch;
 import org.apache.lucene.search.grouping.TopGroups;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
+
+import com.dreamerpartner.codereview.page.PageBean;
+import com.dreamerpartner.codereview.util.JsonUtil;
 
 /**
  * 查询助手
@@ -68,12 +70,12 @@ public class SearchHelper {
   private SearchHelper() {}
   
   @SuppressWarnings("deprecation")
-  public static Document getById(String id){
+  public static Document getById(String module, String id){
 	  if(StringUtils.isEmpty(id))
 		  return null;
 	  IndexReader reader = null;
 	  try {
-		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath(module))));
 		  IndexSearcher searcher = new IndexSearcher(reader);
 		  
 		  BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
@@ -94,30 +96,34 @@ public class SearchHelper {
 	  return null;
   }
   
+  /**
+   * 搜索
+   * @param module 模块
+   * @param fields 搜索字段
+   * @param queryStr 搜索值
+   * @param sort
+   * @param pageNo
+   * @param pageSize
+   * @return
+   */
   @SuppressWarnings("deprecation")
-  public static List<Document> search(String[] fields, String[] queryStr, int pageSize){
+  public static PageBean<Document> search(String module, String[] fields, String[] queryStr, Sort sort, int pageNo, int pageSize){
 	  if(ArrayUtils.isEmpty(fields) || ArrayUtils.isEmpty(queryStr))
 		  return null;
 	  
 	  IndexReader reader = null;
 	  try {
-		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+		  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath(module))));
 		  IndexSearcher searcher = new IndexSearcher(reader);
 		  
 		  BooleanClause.Occur[] flags = new BooleanClause.Occur[fields.length];
 		  for (int i = 0; i < fields.length; i++) {
 			  flags[i] = BooleanClause.Occur.SHOULD;
 		  }
-		  BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 		  Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
-		  
-		  //单字段查询
-//		  QueryParser parser = new QueryParser(Version.LUCENE_4_10_0, field, analyzer);
-//		  Query query = parser.parse(queryStr);
-		  
 		  Query query = MultiFieldQueryParser.parse(Version.LUCENE_4_10_0, queryStr, fields, flags, analyzer);
 		  //分页查询
-		  doPagingSearch(in, searcher, query, pageSize, false);
+		  return doPagingSearch(searcher, query, sort, pageNo, pageSize);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
@@ -143,12 +149,12 @@ public class SearchHelper {
    * @return
    */
   @SuppressWarnings("deprecation")
-  public static Map<String, List<Document>> group(String groupField, String searchField, String searchStr, 
+  public static Map<String, List<Document>> group(String module, String groupField, String searchField, String searchStr, 
 		  int pageNo, int pageSize, String orderField, Type orderFieldType, boolean desc) {
 	    Map<String, List<Document>> result = new LinkedHashMap<String, List<Document>>(10);
 	    IndexReader reader = null;
 		try {
-			  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+			  reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath(module))));
 			  IndexSearcher indexSearcher = new IndexSearcher(reader);
 			  GroupingSearch groupingSearch = new GroupingSearch(groupField);
 			  Sort sort = new Sort(new SortField(orderField, orderFieldType, desc));
@@ -189,62 +195,28 @@ public class SearchHelper {
   }
   
   /** Simple command-line based search demo. */
-  public static void main(String[] args) throws Exception {
+  @SuppressWarnings("deprecation")
+public static void main(String[] args) throws Exception {
+	String module = "test";
     String field = "contents";
-    String queries = null;
     String queryString = "produce";
-    int repeat = 0;
-    boolean raw = false;
-    int hitsPerPage = 10;
+    int pageNo = 1;
+    int pageSize = 10;
+    Sort sort = new Sort(new SortField("createTime", Type.LONG));
     
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath())));
+    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(LuceneUtil.getIndexPath(module))));
     IndexSearcher searcher = new IndexSearcher(reader);
     // :Post-Release-Update-Version.LUCENE_XY:
     Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
 
-    BufferedReader in = null;
-    if (queries != null) {
-      in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
-    } else {
-      in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-    }
     // :Post-Release-Update-Version.LUCENE_XY:
     QueryParser parser = new QueryParser(Version.LUCENE_4_10_0, field, analyzer);
-    while (true) {
-      if (queries == null && queryString == null) {                        // prompt the user
-        System.out.println("Enter query: ");
-      }
-
-      String line = queryString != null ? queryString : in.readLine();
-
-      if (line == null || line.length() == -1) {
-        break;
-      }
-
-      line = line.trim();
-      if (line.length() == 0) {
-        break;
-      }
-      
-      Query query = parser.parse(line);
-      System.out.println("Searching for: " + query.toString(field));
+    Query query = parser.parse(queryString);
+    System.out.println("Searching for: " + query.toString(field));
             
-      if (repeat > 0) {                           // repeat & time as benchmark
-        Date start = new Date();
-        for (int i = 0; i < repeat; i++) {
-          searcher.search(query, null, 100);
-        }
-        Date end = new Date();
-        System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
-      }
-
-      //分页查询
-      doPagingSearch(in, searcher, query, hitsPerPage, raw);
-
-      if (queryString != null) {
-        break;
-      }
-    }
+    //分页查询
+    PageBean<Document> docs = doPagingSearch(searcher, query, sort, pageNo, pageSize);
+    System.out.println(JsonUtil.toString(docs));
     reader.close();
   }
 
@@ -268,89 +240,33 @@ public class SearchHelper {
   
   /**
    * 分页查询
-   * @param in
    * @param searcher
    * @param query
+   * @param sort 必填
+   * @param pageNo
    * @param pageSize
-   * @param raw
+   * @return
    * @throws IOException
    */
-  public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, 
-                                     int pageSize, boolean raw) throws IOException {
-    // Collect enough docs to show 5 pages
-    TopDocs results = searcher.search(query, 5 * pageSize);
-    ScoreDoc[] hits = results.scoreDocs;
-    
-    int numTotal = results.totalHits;
-    System.out.println(numTotal + " total matching documents");
-
-    int start = 0;
-    int end = Math.min(numTotal, pageSize);
-        
-    while (true) {
-      if (end > hits.length) {
-        System.out.println("Only results 1 - " + hits.length +" of " + numTotal + " total matching documents collected.");
-        System.out.println("Collect more (y/n) ?");
-        String line = in.readLine();
-        if (line.length() == 0 || line.charAt(0) == 'n') {
-          break;
-        }
-        hits = searcher.search(query, numTotal).scoreDocs;
-      }
-      end = Math.min(hits.length, start + pageSize);
-      
-      for (int i = start; i < end; i++) {
-        if (raw) {                              // output raw format
-          System.out.println("doc="+hits[i].doc+" score="+hits[i].score);
-          continue;
-        }
-        Document doc = searcher.doc(hits[i].doc);
-        print(doc);
-      }
-
-      if (end == 0) {
-        break;
-      }
-
-      if (numTotal >= end) {
-        boolean quit = false;
-        while (true) {
-          System.out.print("Press ");
-          if (start - pageSize >= 0) {
-            System.out.print("(p)revious page, ");  
-          }
-          if (start + pageSize < numTotal) {
-            System.out.print("(n)ext page, ");
-          }
-          System.out.println("(q)uit or enter number to jump to a page.");
-          
-          String line = in.readLine();
-          if (line.length() == 0 || line.charAt(0)=='q') {
-            quit = true;
-            break;
-          }
-          if (line.charAt(0) == 'p') {
-            start = Math.max(0, start - pageSize);
-            break;
-          } else if (line.charAt(0) == 'n') {
-            if (start + pageSize < numTotal) {
-              start+=pageSize;
-            }
-            break;
-          } else {
-            int page = Integer.parseInt(line);
-            if ((page - 1) * pageSize < numTotal) {
-              start = (page - 1) * pageSize;
-              break;
-            } else {
-              System.out.println("No such page");
-            }
-          }
-        }
-        if (quit) break;
-        end = Math.min(numTotal, start + pageSize);
-      }
-    }
+  public static PageBean<Document> doPagingSearch(IndexSearcher searcher, Query query, Sort sort,
+                                     int pageNo, int pageSize) throws IOException {
+	  if(sort == null)
+		  sort = new Sort(new SortField("id", Type.STRING));
+	  
+	  int start = (pageNo-1)+pageSize;
+	  int numHits = pageNo*pageSize;
+	  TopFieldCollector collector = TopFieldCollector.create(sort, numHits, false, false, false, false);
+	  searcher.search(query, collector);
+	  ScoreDoc[] hits = collector.topDocs(start, pageSize).scoreDocs;
+	  if (hits == null || hits.length < 1)
+	  	return null;
+	  
+	  List<Document> docs = new ArrayList<Document>(pageSize);
+	  for (int i = 0; i < hits.length; i++) {
+		Document doc = searcher.doc(hits[i].doc);
+		docs.add(doc);
+	  }
+	  return new PageBean<Document>(pageSize, pageNo, collector.getTotalHits(), docs);
   }
   
   static void print(Document doc){

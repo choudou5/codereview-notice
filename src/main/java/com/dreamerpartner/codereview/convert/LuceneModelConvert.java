@@ -10,7 +10,7 @@ import org.apache.lucene.document.Document;
  * @author xuhaowen
  * @date 2017年3月19日
  */
-public interface LuceneEntityConvert <T extends Serializable>{
+public interface LuceneModelConvert <T extends Serializable>{
 
 	/**
 	 * 转换成 实体集合
