@@ -49,19 +49,22 @@ public class CommentService {
 	}
 	
 	/**
-	 * 添加
+	 * 添加 (返回id)
 	 * @param model
+	 * @return id
 	 * @throws IOException
 	 */
-	public static void add(String noticeId, String content) throws IOException{
+	public static String add(String noticeId, String content) throws IOException{
 		CommentModel model = new CommentModel();
-		model.setId(DateUtil.getTimeFullStr());
+		String id = DateUtil.getTimeFullStr();
+		model.setId(id);
 		model.setNoticeId(noticeId);
 		model.setContent(content);
 		model.setCreateTime(DateUtil.getDateStr());
 		model.setThumbsUpCount(0);
 		CommentModelConvert convert = new CommentModelConvert();
 		IndexHelper.add(MODULE, convert.convert(model), true);
+		return id;
 	}
 	
 	/**
@@ -93,7 +96,7 @@ public class CommentService {
 	public static PageBean<CommentModel> list(String noticeId, int pageNo, int pageSize){
 		String[] searchFields = new String[]{"noticeId"};
 		String[] searchStrs= new String[]{noticeId};
-		Sort sort = new Sort(new SortField("thumbsUpCount", Type.INT), new SortField("id", Type.STRING));
+		Sort sort = new Sort(new SortField("thumbsUpCount", Type.INT, true), new SortField("id", Type.STRING, true));
 		PageBean<Document> pageBeanDocs = SearchHelper.search(MODULE, searchFields, searchStrs, sort, pageNo, pageSize);
 		return convertData(pageBeanDocs);
 	}

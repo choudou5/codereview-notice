@@ -11,6 +11,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
 import com.dreamerpartner.codereview.model.CommentModel;
+import com.dreamerpartner.codereview.util.DateUtil;
 
 public class CommentModelConvert implements LuceneModelConvert<CommentModel>{
 
@@ -31,7 +32,7 @@ public class CommentModelConvert implements LuceneModelConvert<CommentModel>{
 		entity.setId(doc.get("id"));
 		entity.setNoticeId(doc.get("noticeId"));
 		entity.setContent(doc.get("content"));
-		entity.setCreateTime(doc.get("createTime"));
+		entity.setCreateTime(DateUtil.parseZHDateStr(doc.get("createTime")));
 		entity.setThumbsUpCount(Integer.parseInt(doc.get("thumbsUpCount")));
 		return entity;
 	}

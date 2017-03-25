@@ -253,7 +253,7 @@ public static void main(String[] args) throws Exception {
 	  if(sort == null)
 		  sort = new Sort(new SortField("id", Type.STRING));
 	  
-	  int start = (pageNo-1)+pageSize;
+	  int start = (pageNo-1)*pageSize;
 	  int numHits = pageNo*pageSize;
 	  TopFieldCollector collector = TopFieldCollector.create(sort, numHits, false, false, false, false);
 	  searcher.search(query, collector);

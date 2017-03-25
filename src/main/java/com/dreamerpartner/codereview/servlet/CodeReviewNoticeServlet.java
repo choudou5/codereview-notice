@@ -42,7 +42,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	
 	public final static List<String> GROUP_LIST = new ArrayList<String>(10);
 	private static String ADMIN;
-	public final static String[] GROUP_COLORS = new String[]{"#A3D2DF", "#C6F0D5", "#FFEEB2", "#E8C8ED", "#CCCCFF", "#FFCCCC","#F9D8C4", "#EEEEEE", "#999966", "#CC9999", "#FF9999", "#404448"};
+	public final static String[] GROUP_COLORS = new String[]{"#999966", "#C6F0D5", "#FFEEB2", "#E8C8ED", "#CCCCFF", "#FFCCCC","#F9D8C4", "#EEEEEE", "#999966", "#CC9999", "#FF9999", "#404448"};
 	public final static String[] GROUP_BG_PATTERN = new String[]{
 		"M 5 5 l 10 0 l 0 10 l -10 0 Z", 
 		"M 5,5l10,10M15,5l10,-10 M5,15l-10,10M15,25l10,-10 M-5,5l10,-10", 
@@ -186,8 +186,10 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 				return;
 			}
 			try {
-				CommentService.add(noticeId, content);
-				writeJson(response, 200, "评论成功！");
+				String id = CommentService.add(noticeId, content);
+				Map<String, Object> extParam = new HashMap<String, Object>(1);
+				extParam.put("id", id);
+				writeJson(response, 200, "评论成功！", extParam);
 			} catch (Exception e) {
 				writeJson(response, 400, "评论失败！", e);
 			}
@@ -203,7 +205,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		protected static void list(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			String noticeId = request.getParameter("noticeId");
 			String pageNoStr = request.getParameter("pageNo");
-			int pageNo = 1, pageSize = 30;
+			int pageNo = 1, pageSize = 10;
 			//参数校验
 			if(StringUtils.isBlank(noticeId)){
 				writeJson(response, 403, "提交参数不完整！");
@@ -229,8 +231,9 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 */
 		protected static void thumbsUp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			String noticeId = request.getParameter("noticeId");
+			String commentId = request.getParameter("commentId");
 			//参数校验
-			if(StringUtils.isBlank(noticeId)){
+			if(StringUtils.isBlank(noticeId) || StringUtils.isBlank(commentId)){
 				writeJson(response, 403, "提交参数不完整！");
 				return;
 			}
@@ -412,8 +415,18 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	 * @param status 状态
 	 * @param content 输出内容
 	 */
-	private static void writeJson(HttpServletResponse response, int status, Object content){
-		writeJson(response, status, content, null);
+	protected static void writeJson(HttpServletResponse response, int status, Object content){
+		writeJson(response, status, content, null, null);
+	}
+	
+	/**
+	 * 输出json
+	 * @param response
+	 * @param status 状态
+	 * @param content 输出内容
+	 */
+	protected static void writeJson(HttpServletResponse response, int status, Object content, Map<String, Object> extParam){
+		writeJson(response, status, content, extParam, null);
 	}
 	
 	/**
@@ -423,15 +436,26 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	 * @param content 输出内容
 	 * @param ex
 	 */
-	private static void writeJson(HttpServletResponse response, int status, Object content, Exception ex){
+	protected static void writeJson(HttpServletResponse response, int status, Object content, Exception ex){
+		writeJson(response, status, content, null, ex);
+	}
+	
+	/**
+	 * 输出json
+	 * @param response
+	 * @param status 状态
+	 * @param content 输出内容
+	 * @param extParam
+	 * @param ex
+	 */
+	private static void writeJson(HttpServletResponse response, int status, Object content, Map<String, Object> extParam, Exception ex){
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/json; charset=utf-8");
 		Map<String, Object> result = new HashMap<String, Object>(2);
 		result.put("status", status);
 		result.put("content", content);
-		if(ex != null){
-			result.put("error", ex.getMessage());
-		}
+		if(extParam != null) result.put("extParam", extParam);
+		if(ex != null) result.put("error", ex.getMessage());
 		PrintWriter out = null;
 		try {
 		    out = response.getWriter();

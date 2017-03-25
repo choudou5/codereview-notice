@@ -30,6 +30,33 @@ var EventUtil = {
 		this.addHandler(window, "load", fnHandler)
 	}
 };
+
+var MsgBoxUtil = {
+	
+	/**
+	 * 生成评论Html
+	 */
+	genCommentHtml: function(commentId, userName, content, date){
+		if(!date){
+			var oDate = new Date();
+			date = MsgBoxUtil.format(oDate.getMonth() + 1) + "\u6708" + MsgBoxUtil.format(oDate.getDate()) + "\u65e5 " + MsgBoxUtil.format(oDate.getHours()) + ":" + MsgBoxUtil.format(oDate.getMinutes());
+		}
+		return "<div class=\"userPic\"><img src=\"http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg\"></div>\
+						 <div class=\"content\">\
+						 	<div class=\"userName\"><a href=\"javascript:;\">" + userName + "</a><span class=\"likeCount\">0</span>&nbsp;<a class=\"like\" href=\"javascript:commentThumbsUp('"+commentId+"');\"><i class=\"fa fa-thumbs-o-up\"></i></a></div>\
+							<div class=\"times\"><span>" + date + "</span><a class=\"del\" href=\"javascript:;\">\u5220\u9664</a></div>\
+							<div class=\"msgInfo\">" + content + "</div>\
+						 </div>";
+	},
+	//格式化时间, 如果为一位数时补0
+	format: function(str)
+	{
+		return str.toString().replace(/^(\d)$/,"0$1")
+	}
+		
+		
+} 
+
 /*-------------------------- +
 设置css样式
 读取css样式
@@ -95,7 +122,7 @@ EventUtil.addLoadHandler(function ()
 		}
 		else if(!/^[u4e00-\u9fa5\w]{2,8}$/g.test(oUserName.value))
 		{
-			alert("\u59d3\u540d\u75312-8\u4f4d\u5b57\u6bcd\u3001\u6570\u5b57\u3001\u4e0b\u5212\u7ebf\u3001\u6c49\u5b57\u7ec4\u6210\uff01");
+			noticeError("\u59d3\u540d\u75312-8\u4f4d\u5b57\u6bcd\u3001\u6570\u5b57\u3001\u4e0b\u5212\u7ebf\u3001\u6c49\u5b57\u7ec4\u6210\uff01");
 			oUserName.focus()
 		}
 		else if(reg.test(oConBox.value))
@@ -108,43 +135,45 @@ EventUtil.addLoadHandler(function ()
 		}
 		else
 		{
-			var oLi = document.createElement("li");
-			var oDate = new Date();
-			oLi.innerHTML = "<div class=\"userPic\"><img src=\"http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg\"></div>\
-							 <div class=\"content\">\
-							 	<div class=\"userName\"><a href=\"javascript:;\">" + oUserName.value + "</a><a class=\"like\" href=\"javascript:;\"><i class=\"fa fa-thumbs-o-up\"></i>&nbsp;<span>0</span></a></div>\
-								<div class=\"times\"><span>" + format(oDate.getMonth() + 1) + "\u6708" + format(oDate.getDate()) + "\u65e5 " + format(oDate.getHours()) + ":" + format(oDate.getMinutes()) + "</span><a class=\"del\" href=\"javascript:;\">\u5220\u9664</a></div>\
-								<div class=\"msgInfo\">" + oConBox.value.replace(/<[^>]*>|&nbsp;/ig, "") + "</div>\
-							 </div>";
-			//插入元素
-			aLi.length ? oUl.insertBefore(oLi, aLi[0]) : oUl.appendChild(oLi);
-			
-			//重置表单
-			get.byTagName("form", oMsgBox)[0].reset();
-			oConBox.focus();
-			
-			//将元素高度保存
-			var iHeight = oLi.clientHeight - parseFloat(css(oLi, "paddingTop")) - parseFloat(css(oLi, "paddingBottom"));
-			var alpah = count = 0;
-			css(oLi, {"opacity" : "0", "height" : "0"});	
-			timer = setInterval(function ()
-			{
-				css(oLi, {"display" : "block", "opacity" : "0", "height" : (count += 8) + "px"});
-				if (count > iHeight)
+			var noticeId = $("#noticeId").val();
+			var id = commentPush(noticeId, oConBox.value);
+			if(id != null){
+				var oLi = document.createElement("li");
+				var commentHtml = MsgBoxUtil.genCommentHtml(id, oUserName.value, oConBox.value.replace(/<[^>]*>|&nbsp;/ig, ""));
+				LogUtil.info(commentHtml)
+				oLi.innerHTML = commentHtml;
+				oLi.id = id;
+				//插入元素
+				aLi.length ? oUl.insertBefore(oLi, aLi[0]) : oUl.appendChild(oLi);
+				
+				//重置表单
+				get.byTagName("form", oMsgBox)[0].reset();
+				oConBox.focus();
+				
+				//将元素高度保存
+				var iHeight = oLi.clientHeight - parseFloat(css(oLi, "paddingTop")) - parseFloat(css(oLi, "paddingBottom"));
+				var alpah = 0;
+				var count = 0;
+				css(oLi, {"opacity" : "0", "height" : "0"});	
+				timer = setInterval(function ()
 				{
-					clearInterval(timer);
-					css(oLi, "height", (iHeight+20) + "px");
-					timer = setInterval(function ()
+					css(oLi, {"display" : "block", "opacity" : "0", "height" : (count += 8) + "px"});
+					if (count > iHeight)
 					{
-						css(oLi, "opacity", (alpah += 10));
-						alpah > 100 && (clearInterval(timer), css(oLi, "opacity", 100))
-					},30)
-				}
-			},30);
-			//调用鼠标划过/离开样式
-			liHover();
-			//调用删除函数
-			delLi()
+						clearInterval(timer);
+						css(oLi, "height", (iHeight+20) + "px");
+						timer = setInterval(function ()
+						{
+							css(oLi, "opacity", (alpah += 10));
+							alpah > 100 && (clearInterval(timer), css(oLi, "opacity", 100))
+						},30)
+					}
+				},30);
+				//调用鼠标划过/离开样式
+				liHover();
+				//调用删除函数
+				delLi()
+			}
 		}
 	};
 	
@@ -179,28 +208,28 @@ EventUtil.addLoadHandler(function ()
 			EventUtil.addHandler(aLi[i], "mouseover", function (event)
 			{
 				this.className = "hover";
-				oTmp = get.byClass("times", this)[0];
-				var aA = get.byTagName("a", oTmp);
-				if (!aA.length)
-				{
-					var oA = document.createElement("a");					
-					oA.innerHTML = "删除";
-					oA.className = "del";
-					oA.href = "javascript:;";
-					oTmp.appendChild(oA)
-				}
-				else
-				{
-					aA[0].style.display = "block";
-				}
+//				oTmp = get.byClass("times", this)[0];
+//				var aA = get.byTagName("a", oTmp);
+//				if (!aA.length)
+//				{
+//					var oA = document.createElement("a");					
+//					oA.innerHTML = "删除";
+//					oA.className = "del";
+//					oA.href = "javascript:;";
+//					oTmp.appendChild(oA)
+//				}
+//				else
+//				{
+//					aA[0].style.display = "block";
+//				}
 			});
 
 			//li鼠标离开样式
 			EventUtil.addHandler(aLi[i], "mouseout", function ()
 			{
 				this.className = "";
-				var oA = get.byTagName("a", get.byClass("times", this)[0])[0];
-				oA.style.display = "none"	
+//				var oA = get.byTagName("a", get.byClass("times", this)[0])[0];
+//				oA.style.display = "none"	
 			})
 		}
 	}
@@ -209,7 +238,7 @@ EventUtil.addLoadHandler(function ()
 	//删除功能
 	function delLi()
 	{
-		var aA = get.byClass("del", oUl);
+		/*var aA = get.byClass("del", oUl);
 		
 		for (i = 0; i < aA.length; i++)
 		{
@@ -235,7 +264,7 @@ EventUtil.addLoadHandler(function ()
 				},30);			
 				this.onclick = null	
 			}			
-		}
+		}*/
 	}
 	delLi();
 	
@@ -244,11 +273,5 @@ EventUtil.addLoadHandler(function ()
 	{
 		EventUtil.addHandler(aFtxt[i], "focus", function ()	{this.className = "active"});		
 		EventUtil.addHandler(aFtxt[i], "blur", function () {this.className = ""})
-	}
-	
-	//格式化时间, 如果为一位数时补0
-	function format(str)
-	{
-		return str.toString().replace(/^(\d)$/,"0$1")
 	}
 });

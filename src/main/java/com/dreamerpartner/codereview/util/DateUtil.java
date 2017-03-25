@@ -25,6 +25,19 @@ public class DateUtil {
 	}
 	
 	/**
+	 * 转换成 日期
+	 * @param dateStr
+	 */
+	public static Date toDate(String dateStr){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		try {
+			return sdf.parse(dateStr);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	/**
 	 * 获得日期 字符串
 	 * @return yyyyMMdd
 	 */
@@ -73,6 +86,26 @@ public class DateUtil {
 			return dateTimeFormatter.format(new Date());
 		} catch (Exception e) {
 			return null;
+		}
+	}
+	
+	/**
+	 * 获得日期 字符串
+	 * @return MM月dd HH:mm
+	 */
+	@SuppressWarnings("deprecation")
+	public static String parseZHDateStr(String dateStr){
+		SimpleDateFormat sdf = null;
+		try {
+			Date date = toDate(dateStr);
+			if(date.getYear() == new Date().getYear()){
+				sdf = new SimpleDateFormat("MM月dd HH:mm");
+			}else{
+				sdf = new SimpleDateFormat("yyyy年MM月dd HH:mm");
+			}
+			return sdf.format(date);
+		} catch (Exception e) {
+			return dateStr;
 		}
 	}
 	

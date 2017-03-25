@@ -92,30 +92,12 @@
 <script type="text/javascript" charset="utf-8" src="/js/umeditor1.2.3/editor_api.js"></script>
 <script type="text/javascript" src="/js/umeditor1.2.3/lang/zh-cn/zh-cn.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.js"></script>
-<script type="text/javascript" src="/js/form.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/custom/form.js"></script>
 <script type="text/javascript">
     //实例化编辑器
     var um = UM.getEditor('contentEditor');
  
-    var noticeObj;
-    function notice(msg){
-    	noticeObj = new jBox('Notice', {
-	    	id: "jBoxMsgNotice",
-	        content: msg,
-	        autoClose: 12000,
-	        color: 'black',
-	        attributes: {                // Note that attributes can only be 'left' or 'right' when using numbers for position, e.g. {x: 300, y: 20}
-	            x: 'left',                 // Horizontal position, use 'left' or 'right'
-	            y: 'bottom'                   // Vertical position, use 'top' or 'bottom'
-	        },
-        });
-    }
-    function noticeClose(){
-    	if(noticeObj != null){
-    		noticeObj.destroy();
-    		noticeObj = null;
-    	}
-    }
 </script>
 
 </html>

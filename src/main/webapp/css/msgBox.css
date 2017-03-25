@@ -18,15 +18,21 @@
 #msgBox .list ul li.hover{background:#f5f5f5;}
 #msgBox .list .userPic{float:left;width:50px;height:50px;display:inline;margin-left:10px;border:1px solid #ccc;border-radius:3px;}
 #msgBox .list .content{float:left;width:90%;font-size:14px;margin-left:10px;font-family:arial;word-wrap:break-word;}
+#msgBox .list .contentNone{height: 50px;line-height: 50px;text-align: center;color: #999999}
 #msgBox .list .userName{display:inline;padding-right:5px;}
 #msgBox .list .userName a.like{float: right;color: #BBBBBB; font-size: 15px;font-weight: normal;}
-#msgBox .list .userName a.like span{font-size: 13px;}
+#msgBox .list .userName span.likeCount{float: right;color: #BBBBBB;font-size: 13px;font-weight: normal;padding: 2px;}
 #msgBox .list .userName a:hover{text-decoration: none;}
-#msgBox .list .userName a i:hover{color: #999999}
+#msgBox .list .userName a i:hover{color: #EB613D}
+#msgBox .list .userName a i.yet:hover{color: #BBBBBB; cursor: text;}
 #msgBox .list .msgInfo{display:inline;word-wrap:break-word;}
 #msgBox .list .times{color:#889db6;font:12px/18px arial;margin-top:5px;overflow:hidden;zoom:1;}
 #msgBox .list .times span{float:left;}
 #msgBox .list .times a{float:left; margin-left: 10px;display:none;}
+#msgBox .list .pagings{margin: 0 auto;text-align: center;}
+#msgBox .list .pagings a{font-size: 25px;text-decoration: none;}
+#msgBox .list .pagings .nomore{color: #AAA;display: none;}
+
 .tr{overflow:hidden;zoom:1;}
 .tr p{float:right;line-height:30px;}
 .tr *{float:left;}
