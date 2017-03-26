@@ -206,6 +206,31 @@ public class IndexHelper {
   }
   
   /**
+   * 删除所有数据
+   * @param module 模块
+   * @throws IOException
+   */
+  @SuppressWarnings("deprecation")
+  public static void deleteAll(String module) throws IOException{
+	  long beginTime = System.currentTimeMillis();
+	  IndexWriter writer = null;
+	  try {
+	      Directory dir = FSDirectory.open(new File(LuceneUtil.getIndexPath(module)));
+	      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_4_10_0);
+	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
+	      iwc.setMaxBufferedDocs(100);
+	      iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
+	      writer = new IndexWriter(dir, iwc);
+	      writer.deleteAll();
+	      writer.commit();
+	    }finally{
+	    	long endTime = System.currentTimeMillis();
+		    logger.debug(module+" deleteAll "+(endTime-beginTime)+" milliseconds.");
+			if(writer != null) writer.close();
+	    }
+  }
+  
+  /**
    * 合并数据（优化碎片）
    * @param module 模块
    * @throws IOException

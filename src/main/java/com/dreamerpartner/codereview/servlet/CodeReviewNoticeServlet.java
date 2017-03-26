@@ -41,7 +41,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 	
 	
 	public final static List<String> GROUP_LIST = new ArrayList<String>(10);
-	private static String ADMIN;
+	private static String SYS_PWD;
 	public final static String[] GROUP_COLORS = new String[]{"#999966", "#C6F0D5", "#FFEEB2", "#E8C8ED", "#CCCCFF", "#FFCCCC","#F9D8C4", "#EEEEEE", "#999966", "#CC9999", "#FF9999", "#404448"};
 	public final static String[] GROUP_BG_PATTERN = new String[]{
 		"M 5 5 l 10 0 l 0 10 l -10 0 Z", 
@@ -90,12 +90,12 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			GROUP_LIST.addAll(Arrays.asList(groupKeys));
 		}
 		
-		//初始化 系统账号
-		if(StringUtils.isBlank(ADMIN)){
-			String sysAdmin = PropertiesUtil.getString("system.admin");
-			if(StringUtils.isBlank(sysAdmin))
-				throw new ServletException("请初始化 system.properties 里的 system.admin 参数。");
-			ADMIN = sysAdmin;
+		//初始化 系统密码
+		if(StringUtils.isBlank(SYS_PWD)){
+			String sysPwd = PropertiesUtil.getString("system.password");
+			if(StringUtils.isBlank(sysPwd))
+				throw new ServletException("请初始化 system.properties 里的 system.password 参数。");
+			SYS_PWD = sysPwd;
 		}
 		
 		//初始化  索引目录
@@ -267,8 +267,11 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			case "ajaxDeleteData":
 				ajaxDeleteData(request, response);
 				break;
-			case "ajaxValidAccount":
-				ajaxValidAccount(request, response);
+			case "ajaxValidPwd":
+				ajaxValidPwd(request, response);
+				break;
+			case "deleteAllData":
+				deleteAllData(request, response);
 				break;
 			default:
 				viewIndex(request, response);
@@ -325,7 +328,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			}
 			//权限校验
 			if(!isPermission(request)){
-				writeJson(response, 403, "账号不正确！请联系管理员.");
+				writeJson(response, 403, "密码不正确！请联系管理员.");
 				return;
 			}
 			
@@ -339,16 +342,16 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		}
 		
 		/**
-		 * 异步验证 账号
+		 * 异步验证 密码
 		 * @param request
 		 * @param response
 		 * @throws ServletException
 		 * @throws IOException 
 		 */
-		protected static void ajaxValidAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			String adminAccount = request.getParameter("adminAccount"); // AJAX验证，成功返回true
+		protected static void ajaxValidPwd(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			String adminAccount = request.getParameter("sysPwd"); // AJAX验证，成功返回true
 			if (StringUtils.isNotBlank(adminAccount)){
-				response.getOutputStream().print(adminAccount.equals(ADMIN)?"true":"false");
+				response.getOutputStream().print(adminAccount.equals(SYS_PWD)?"true":"false");
 			}else{
 				response.getOutputStream().print("false");
 			}
@@ -370,13 +373,35 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			}
 			//权限校验
 			if(!isPermission(request)){
-				writeJson(response, 403, "账号不正确！请联系管理员.");
+				writeJson(response, 403, "密码不正确！请联系管理员.");
 				return;
 			}
 			
 			//删除
 			try {
 				NoticeService.deleteById(id);
+				writeJson(response, 200, "删除成功！");
+			} catch (Exception e) {
+				writeJson(response, 400, "删除失败！", e);
+			}
+		}
+		
+		/**
+		 * 异步 所有删除数据（首页隐藏有链接）
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException 
+		 */
+		protected static void deleteAllData(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			//权限校验
+			if(!isPermission(request)){
+				writeJson(response, 403, "密码不正确！请联系管理员.");
+				return;
+			}
+			
+			try {
+				NoticeService.deleteAll();
 				writeJson(response, 200, "删除成功！");
 			} catch (Exception e) {
 				writeJson(response, 400, "删除失败！", e);
@@ -393,6 +418,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 			entity.setTitle(request.getParameter("title"));
 			entity.setContent(request.getParameter("content"));
 			entity.setType(request.getParameter("type"));
+			entity.setCreateBy(request.getParameter("createBy"));
 			return entity;
 		}
 		
@@ -403,8 +429,8 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @return
 		 */
 		private static boolean isPermission(HttpServletRequest request){
-			String account = request.getParameter("adminAccount");
-			return ADMIN.equals(account)?true:false;
+			String sysPwd = request.getParameter("sysPwd");
+			return SYS_PWD.equals(sysPwd)?true:false;
 		}
 		
 	}

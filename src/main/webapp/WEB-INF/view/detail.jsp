@@ -38,10 +38,11 @@
     	<h2>${notice.title }</h2>
     	<span class="explain">分组：${notice.groupKey} ，
     	类型：
-    	<font color="#CC6600">
+    	<font color="#66CCCC">
     	<c:if test="${notice.type eq 'good'}">优秀Code</c:if>
     	<c:if test="${notice.type eq 'bad'}">待改善Code</c:if>
     	</font>
+    	，发布人： ${notice.createBy }
     	，时间： ${notice.createTime }</span>
     </div>
     <br>

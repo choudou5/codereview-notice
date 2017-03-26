@@ -34,6 +34,7 @@ public class NoticeModelConvert implements LuceneModelConvert<NoticeModel>{
 			model.setContent(doc.get("content"));
 		model.setType(doc.get("type"));
 		model.setGroupKey(doc.get("groupKey"));
+		model.setCreateBy(doc.get("createBy"));
 		model.setCreateTime(DateUtil.parseZHDateStr(doc.get("createTime")));
 		return model;
 	}
@@ -46,6 +47,7 @@ public class NoticeModelConvert implements LuceneModelConvert<NoticeModel>{
 		doc.add(new TextField("content", model.getContent(), Field.Store.YES));
 		doc.add(new StringField("type", model.getType(), Field.Store.YES));
 		doc.add(new StringField("groupKey", model.getGroupKey(), Field.Store.YES));
+		doc.add(new StringField("createBy", model.getCreateBy(), Field.Store.YES));
 		doc.add(new StringField("createTime", model.getCreateTime(), Field.Store.YES));
 		return doc;
 	}

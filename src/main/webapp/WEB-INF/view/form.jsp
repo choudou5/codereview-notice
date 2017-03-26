@@ -1,6 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE HTML>
@@ -72,9 +70,15 @@
 				<div class="clear"></div>
 				<div class="input-group">
 		      		<label>
-		      			<input name="adminAccount" type="password" placeholder="请输入管理员账号" maxlength="30" /><font color="red">*</font>
+		      			<input name="sysPwd" type="password" placeholder="请输入系统密码" maxlength="30" /><font color="red">*</font>
 		      		</label>
 		      	</div>
+		      	<div class="input-group">
+		      		<label>
+		      			<input name="createBy" type="text" placeholder="发布人名称" maxlength="10" /><font color="red">*</font>
+		      		</label>
+		      	</div>
+		      	
 				<div class="input-group">
 					<input type="submit" value="提交" onclick="submitForm()"/>
 		      	</div>

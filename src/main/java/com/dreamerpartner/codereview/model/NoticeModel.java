@@ -18,6 +18,7 @@ public class NoticeModel implements Serializable{
 	private String content;
 	private String type;
 	private String groupKey;
+	private String createBy;
 	private String createTime;
 	
 	public static boolean validate(NoticeModel entity){
@@ -25,7 +26,8 @@ public class NoticeModel implements Serializable{
 			return false;
 		}
 		return (StringUtils.isBlank(entity.getGroupKey()) || StringUtils.isBlank(entity.getTitle()) 
-				|| StringUtils.isBlank(entity.getContent()) || StringUtils.isBlank(entity.getType()));
+				|| StringUtils.isBlank(entity.getContent()) || StringUtils.isBlank(entity.getType()) 
+				|| StringUtils.isBlank(entity.getCreateBy()));
 	}
 	
 	public String getId() {
@@ -58,6 +60,12 @@ public class NoticeModel implements Serializable{
 	public void setGroupKey(String groupKey) {
 		this.groupKey = groupKey;
 	}
+	public String getCreateBy() {
+		return createBy;
+	}
+	public void setCreateBy(String createBy) {
+		this.createBy = createBy;
+	}
 	public String getCreateTime() {
 		return createTime;
 	}
@@ -67,6 +75,6 @@ public class NoticeModel implements Serializable{
 	
 	@Override
 	public String toString() {
-		return "id:"+id+",title:"+title+",type:"+type+",groupKey:"+groupKey+", createTime:"+createTime;
+		return "id:"+id+",title:"+title+",type:"+type+",groupKey:"+groupKey+", createBy:"+createBy+", createTime:"+createTime;
 	}
 }

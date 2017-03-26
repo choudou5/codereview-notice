@@ -39,11 +39,12 @@ public class NoticeService {
 	public static void initIndex() throws ServletException{
 		NoticeModel model = new NoticeModel();
 		model.setId("0");
-		model.setCreateTime(DateUtil.getDateStr());
 		model.setGroupKey("");
 		model.setContent("");
 		model.setType("");
 		model.setTitle("");
+		model.setCreateBy("");
+		model.setCreateTime(DateUtil.getDateStr());
 		NoticeModelConvert convert = new NoticeModelConvert();
 		try {
 			IndexHelper.add(MODULE, convert.convert(model), true);
@@ -68,12 +69,22 @@ public class NoticeService {
 	}
 	
 	/**
-	 * 保存
-	 * @param model
+	 * 删除
+	 * @param id
 	 * @throws IOException
 	 */
 	public static void deleteById(String id) throws IOException{
 		IndexHelper.delete(MODULE, id);
+		CommentService.deleteByNoticeId(id);
+	}
+	
+	/**
+	 * 删除所有
+	 * @throws IOException
+	 */
+	public static void deleteAll() throws IOException{
+		IndexHelper.deleteAll(MODULE);
+		CommentService.deleteAll();
 	}
 	
 	

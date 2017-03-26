@@ -8,10 +8,13 @@ $("#noticeForm").validate({
 			minlength:6,
 			maxlength:25
 		},
-		adminAccount: {required: true, remote: "?module=notice&action=ajaxValidAccount"}
+		createBy:{
+			required:true
+		},
+		sysPwd: {required: true, remote: "?module=notice&action=ajaxValidPwd"}
 	},
 	messages: {
-		adminAccount: {remote: "账号不正确，请联系管理员", required: "请输入管理员账号"}
+		sysPwd: {remote: "密码不正确，请联系管理员", required: "请输入系统密码"}
 	},
 	errorClass: "help-inline",
 	errorElement: "span",

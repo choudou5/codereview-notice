@@ -105,6 +105,14 @@ public class CommentService {
 	}
 	
 	/**
+	 * 删除所有评论
+	 * @throws IOException
+	 */
+	public static void deleteAll() throws IOException{
+		IndexHelper.deleteAll(MODULE);
+	}
+	
+	/**
 	 * 列表数据
 	 * @param noticeId
 	 * @param pageNo
