@@ -68,7 +68,7 @@
                 <div class="hPJIuQ" data-reactid="17">
                   <p>你的代码Review情况将在这里展示, Are you ready？</p>
                   <p>
-                  	<strong>分组：</strong>
+                  	<strong>分组：</strong> 
 	                  <c:forEach var="group" items="${groupList }" varStatus="status">
 	            		<c:set var="index" value="${status.index+1 }"/>
 	            		<a href="#section-${index }">${group }</a>

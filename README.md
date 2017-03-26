@@ -1,6 +1,9 @@
 # codereview-notice（代码审核公告）
 
 ---
+## 功能
+1. 公告
+2. 评论
 
 ## 项目背景
 1. 公司程序猿的开发水平都参差不齐，习惯也不一样
@@ -25,23 +28,16 @@
 3. 配完 就可以去Tomcat部署启动了。
 
 ---
-
-## 下次更新清单
-1. 粘贴上传图片---增加响应提示
-2. 编辑，删除功能
-3. 评论功能
-
----
 ## 效果图
 ### 分组清单
-![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170320/72131489951313024.png "首页分组")
+![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170326/95431490526682777.png "首页分组")
 
 ### 列表
-![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170320/57211489951570542.png "列表")
+![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170326/61191490526823963.png "列表")
 
 ### 新增
 ![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170320/94261489951816664.png "新增")
 
 ### 详情
-![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170320/87841489951979008.png "详情")
+![Alt text](http://choudoufu-hd2.oss-cn-shanghai.aliyuncs.com/codereview/20170326/24221490525978443.png "详情")
  
