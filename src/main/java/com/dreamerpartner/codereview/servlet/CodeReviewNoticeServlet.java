@@ -101,6 +101,7 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		//初始化  索引目录
 		LuceneUtil.initIndexDir();
 		NoticeService.initIndex();//初始化索引
+		CommentService.initIndex();
 		//初始化 OSS
 		OSSClientUtil.init();
 	}
@@ -230,15 +231,14 @@ public class CodeReviewNoticeServlet extends HttpServlet {
 		 * @throws IOException
 		 */
 		protected static void thumbsUp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-			String noticeId = request.getParameter("noticeId");
 			String commentId = request.getParameter("commentId");
 			//参数校验
-			if(StringUtils.isBlank(noticeId) || StringUtils.isBlank(commentId)){
+			if(StringUtils.isBlank(commentId)){
 				writeJson(response, 403, "提交参数不完整！");
 				return;
 			}
 			try {
-				//
+				CommentService.thumbsUp(commentId);
 				writeJson(response, 200, "点赞成功！");
 			} catch (Exception e) {
 				writeJson(response, 400, "获取评论失败！", e);

@@ -10,6 +10,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
 import com.dreamerpartner.codereview.model.NoticeModel;
+import com.dreamerpartner.codereview.util.DateUtil;
 
 public class NoticeModelConvert implements LuceneModelConvert<NoticeModel>{
 
@@ -33,7 +34,7 @@ public class NoticeModelConvert implements LuceneModelConvert<NoticeModel>{
 			model.setContent(doc.get("content"));
 		model.setType(doc.get("type"));
 		model.setGroupKey(doc.get("groupKey"));
-		model.setCreateTime(doc.get("createTime"));
+		model.setCreateTime(DateUtil.parseZHDateStr(doc.get("createTime")));
 		return model;
 	}
 	

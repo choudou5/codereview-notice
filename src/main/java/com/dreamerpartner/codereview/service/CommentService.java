@@ -6,6 +6,8 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -68,6 +70,22 @@ public class CommentService {
 	}
 	
 	/**
+	 * 点赞
+	 * @param model
+	 * @return id
+	 * @throws IOException
+	 */
+	public static void thumbsUp(String commentId) throws IOException{
+		Document doc = SearchHelper.getById(MODULE, commentId);
+		if(doc != null){
+			int oldThumbsUpCount = Integer.parseInt(doc.get("thumbsUpCount"));
+			doc.removeField("thumbsUpCount");
+			doc.add(new IntField("thumbsUpCount", oldThumbsUpCount+1, Field.Store.YES));
+		}
+		IndexHelper.add(MODULE, doc, false);
+	}
+	
+	/**
 	 * 删除评论
 	 * @param model
 	 * @throws IOException
@@ -109,14 +127,16 @@ public class CommentService {
 	 */
 	private static PageBean<CommentModel> convertData(PageBean<Document> pageBeanDocs){
 		PageBean<CommentModel> pageBean = new PageBean<CommentModel>();
-		if(pageBeanDocs.getTotalCount() > 0){
-			List<Document> docs = pageBeanDocs.getResult();
-			CommentModelConvert convert = new CommentModelConvert();
-			List<CommentModel> result = convert.converts(docs);
-			pageBean.setPageNo(pageBeanDocs.getPageNo());
-			pageBean.setPageSize(pageBeanDocs.getPageSize());
-			pageBean.setTotalCount(pageBeanDocs.getTotalCount());
-			pageBean.setResult(result);
+		if(pageBeanDocs != null){
+			if(pageBeanDocs.getTotalCount() > 0){
+				List<Document> docs = pageBeanDocs.getResult();
+				CommentModelConvert convert = new CommentModelConvert();
+				List<CommentModel> result = convert.converts(docs);
+				pageBean.setPageNo(pageBeanDocs.getPageNo());
+				pageBean.setPageSize(pageBeanDocs.getPageSize());
+				pageBean.setTotalCount(pageBeanDocs.getTotalCount());
+				pageBean.setResult(result);
+			}
 		}
 		return pageBean;
 	}

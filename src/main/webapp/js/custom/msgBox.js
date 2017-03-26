@@ -35,16 +35,24 @@ var MsgBoxUtil = {
 	
 	/**
 	 * 生成评论Html
+	 * @param commentId
+	 * @param userName
+	 * @param content
+	 * @param date
+	 * @param likeCount
+	 * @param canPraise
+	 * @returns {String}
 	 */
-	genCommentHtml: function(commentId, userName, content, date){
+	genCommentHtml: function(commentId, userName, content, date, likeCount, canPraise){
 		if(!date){
 			var oDate = new Date();
 			date = MsgBoxUtil.format(oDate.getMonth() + 1) + "\u6708" + MsgBoxUtil.format(oDate.getDate()) + "\u65e5 " + MsgBoxUtil.format(oDate.getHours()) + ":" + MsgBoxUtil.format(oDate.getMinutes());
 		}
-		return "<div class=\"userPic\"><img src=\"http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg\"></div>\
+		//<img src=\"http://tva2.sinaimg.cn/crop.0.0.1242.1242.50/ad17cc71jw8ezd2aah1rcj20yi0yiwj4.jpg\">
+		return "<div class=\"userPic\"></div>\
+				<div class=\"userName\"><a href=\"javascript:;\">" + userName + "</a><span class=\"likeCount\">"+likeCount+"</span>&nbsp;<a class=\"like\" href=\"javascript:"+(canPraise?"commentThumbsUp('"+commentId+"')":"void(0)")+";\"><i class=\"fa fa-thumbs-o-up "+(canPraise?"":"yet")+"\"></i></a></div>\
+				<div class=\"times\"><span>" + date + "</span><a class=\"del\" href=\"javascript:;\">\u5220\u9664</a></div>\
 						 <div class=\"content\">\
-						 	<div class=\"userName\"><a href=\"javascript:;\">" + userName + "</a><span class=\"likeCount\">0</span>&nbsp;<a class=\"like\" href=\"javascript:commentThumbsUp('"+commentId+"');\"><i class=\"fa fa-thumbs-o-up\"></i></a></div>\
-							<div class=\"times\"><span>" + date + "</span><a class=\"del\" href=\"javascript:;\">\u5220\u9664</a></div>\
 							<div class=\"msgInfo\">" + content + "</div>\
 						 </div>";
 	},
@@ -139,8 +147,7 @@ EventUtil.addLoadHandler(function ()
 			var id = commentPush(noticeId, oConBox.value);
 			if(id != null){
 				var oLi = document.createElement("li");
-				var commentHtml = MsgBoxUtil.genCommentHtml(id, oUserName.value, oConBox.value.replace(/<[^>]*>|&nbsp;/ig, ""));
-				LogUtil.info(commentHtml)
+				var commentHtml = MsgBoxUtil.genCommentHtml(id, oUserName.value, oConBox.value.replace(/<[^>]*>|&nbsp;/ig, ""), null, 0, true);
 				oLi.innerHTML = commentHtml;
 				oLi.id = id;
 				//插入元素
@@ -148,7 +155,7 @@ EventUtil.addLoadHandler(function ()
 				
 				//重置表单
 				get.byTagName("form", oMsgBox)[0].reset();
-				oConBox.focus();
+//				oConBox.focus();
 				
 				//将元素高度保存
 				var iHeight = oLi.clientHeight - parseFloat(css(oLi, "paddingTop")) - parseFloat(css(oLi, "paddingBottom"));
@@ -193,12 +200,6 @@ EventUtil.addLoadHandler(function ()
 	//加载即调用
 	confine();		
 	
-	//广播按钮鼠标划过样式
-	EventUtil.addHandler(oSendBtn, "mouseover", function () {this.className = "hover"});
-
-	//广播按钮鼠标离开样式
-	EventUtil.addHandler(oSendBtn, "mouseout", function () {this.className = ""});
-	
 	//li鼠标划过/离开处理函数
 	function liHover()
 	{
@@ -207,7 +208,6 @@ EventUtil.addLoadHandler(function ()
 			//li鼠标划过样式
 			EventUtil.addHandler(aLi[i], "mouseover", function (event)
 			{
-				this.className = "hover";
 //				oTmp = get.byClass("times", this)[0];
 //				var aA = get.byTagName("a", oTmp);
 //				if (!aA.length)
@@ -227,7 +227,6 @@ EventUtil.addLoadHandler(function ()
 			//li鼠标离开样式
 			EventUtil.addHandler(aLi[i], "mouseout", function ()
 			{
-				this.className = "";
 //				var oA = get.byTagName("a", get.byClass("times", this)[0])[0];
 //				oA.style.display = "none"	
 			})

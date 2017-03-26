@@ -33,6 +33,7 @@
     </svg>
   </div>
   <div class="jcZDsC" style="border-left: none;">
+    <a href="?view=index">返回首页</a>
     <div class="header-center">
     	<h2>新增公告</h2>
     	<span class="explain">把您的代码片段截图 粘贴上来吧！</span>

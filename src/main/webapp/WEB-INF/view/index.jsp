@@ -46,7 +46,7 @@
             
             <div class="RTdSn" data-reactid="11">
               <div class="bzDtW" data-reactid="12">
-                <a href="/" data-reactid="13" class="hoverNoLine">
+                <a href="?module=view" data-reactid="13" class="hoverNoLine">
                   <h1 class="dsCugZ" data-reactid="14">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                     	width="220" height="100" x="0px" y="0px" viewBox="0 0 150 400" enable-background="new 0 0 400 400" xml:space="preserve">
@@ -127,7 +127,7 @@
 	              </div>
 	              <div class="euuwmB" data-reactid="187">
 	                <div class="item kKOtfr" data-reactid="195">
-	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?module=notice&action=form&type=good&groupKey=${group }" target="_blank">立即创建</a></h3>
+	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?module=notice&action=form&type=good&groupKey=${group }">立即创建</a></h3>
 	               		<c:if test="${empty goodNotices[group] }">
 	               			<p>
 		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
@@ -136,14 +136,14 @@
 	               		<c:if test="${not empty goodNotices[group] }">
 		               		<ul>
 		               			<c:forEach var="notice" items="${goodNotices[group] }">
-						        	<li><a href="?module=notice&action=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
+						        	<li><a href="?module=notice&action=detail&id=${notice.id }">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
 		               			</c:forEach>
 						    </ul>
 	               		</c:if>
 	                    
 	                </div>
 	                <div class="item kKOtfr" data-reactid="195">
-	                	<h3 class="item-title jPzqaA" data-reactid="189">待改善Code <a href="?module=notice&action=form&type=bad&groupKey=${group }" target="_blank">立即创建</a></h3>
+	                	<h3 class="item-title jPzqaA" data-reactid="189">待改善Code <a href="?module=notice&action=form&type=bad&groupKey=${group }">立即创建</a></h3>
 	                	<c:if test="${empty badNotices[group] }">
 	               			<p>
 		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
@@ -152,7 +152,7 @@
 	               		<c:if test="${not empty badNotices[group] }">
 		               		<ul>
 		               			<c:forEach var="notice" items="${badNotices[group] }">
-						        	<li><a href="?module=notice&action=detail&id=${notice.id }" target="_blank">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
+						        	<li><a href="?module=notice&action=detail&id=${notice.id }">${notice.title }</a><span class="fgqZDe">${notice.createTime }</span></li>   
 		               			</c:forEach>
 						    </ul>
 	               		</c:if>
@@ -191,7 +191,6 @@
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/stickUp.js"></script>
-    <script type="text/javascript" src="/js/qrcode.min.js"></script>
     <script type="text/javascript">
 	    jQuery(function($) {
 	        $(document).ready( function() {

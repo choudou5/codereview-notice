@@ -21,7 +21,7 @@
     <title>公告详情</title>
 </head>
 <body>
-<section id="section-0" class="section gMyTHp" style="background-color:#EEEEEE" data-reactid="172">
+<section id="section-detail" class="section gMyTHp" style="background-color:#EEEEEE" data-reactid="172">
   <div class="fUkIQu" data-reactid="173">
     <svg data-reactid="174">
       <defs data-reactid="175">
@@ -32,7 +32,8 @@
       <rect style="fill:url(#pattern-1);" x="0" y="0" height="3000" width="3000" data-reactid="178"></rect>
     </svg>
   </div>
-  <div class="jcZDsC" style="border-left: none;">
+  <div id="detailBody" class="jcZDsC" style="border-left: none;">
+  	<a href="?view=index">返回首页</a>
   	<div class="header-center">
     	<h2>${notice.title }</h2>
     	<span class="explain">分组：${notice.groupKey} ，
@@ -49,5 +50,19 @@
  	<%@include file="/WEB-INF/view/include/msg_box.jsp" %>
   </div>
 </section>
+
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script async="async" type="text/javascript" src="/js/jBox-0.4.7/jBox.js"></script>
+<script async="async" type="text/javascript" src="/js/jBox-0.4.7/jBox.Notice.min.js"></script>
+<script type="text/javascript" src="/js/store1.3.20/store.min.js"></script>
+<script type="text/javascript" src="/js/custom/msgBox.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/custom/comment.js"></script>
+
+<script type="text/javascript">
+    //初始化评论
+    commentList();
+ 
+</script>
 
 </html>

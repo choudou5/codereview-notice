@@ -8,7 +8,7 @@ $("#noticeForm").validate({
 			minlength:6,
 			maxlength:25
 		},
-		adminAccount: {required: true, remote: "/codereviewnotice?module=notice&action=ajaxValidAccount"}
+		adminAccount: {required: true, remote: "?module=notice&action=ajaxValidAccount"}
 	},
 	messages: {
 		adminAccount: {remote: "账号不正确，请联系管理员", required: "请输入管理员账号"}
@@ -33,7 +33,7 @@ function submitForm(){
 
 function ajaxSubmitForm() {
 	var param = $("#noticeForm").serialize();
-    var url = "/codereviewnotice?module=notice&action=formSave";
+    var url = "?module=notice&action=formSave";
     $.ajax({
         type: "post",
         cache: false,

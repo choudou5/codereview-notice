@@ -39,6 +39,13 @@
     text-decoration: underline;
 }
 
+.noPageTitle{
+	font-size:5em;color:#FF6600;font-weight: bold;
+}
+.noPageDesc{
+	font-size:2em;font-weight: bold;margin-left: 10px;
+}
+
 .iQbGqt { 
   line-height: 1.6;
   position: relative;

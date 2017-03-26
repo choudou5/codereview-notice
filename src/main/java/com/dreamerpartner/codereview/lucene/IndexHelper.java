@@ -111,7 +111,7 @@ public class IndexHelper {
 	     writer.commit();
 	    }finally{
 	    	long endTime = System.currentTimeMillis();
-		    logger.debug("add consume "+(endTime-beginTime)+" milliseconds.");
+		    logger.debug("isNew:"+isNew+", add consume "+(endTime-beginTime)+" milliseconds.");
 			if(writer != null) writer.close();
 	    }
   }
