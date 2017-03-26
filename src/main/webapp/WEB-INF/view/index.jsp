@@ -66,8 +66,9 @@
               </div>
               <div class="section-intro-contents huKWfn" data-reactid="16">
                 <div class="hPJIuQ" data-reactid="17">
-                  <p><strong>Code Review</strong>, 是提高编码能力的重要流程, Are you ready？</p>
+                  <p>你的代码Review情况将在这里展示, Are you ready？</p>
                   <p>
+                  	<strong>分组：</strong>
 	                  <c:forEach var="group" items="${groupList }" varStatus="status">
 	            		<c:set var="index" value="${status.index+1 }"/>
 	            		<a href="#section-${index }">${group }</a>
@@ -129,9 +130,7 @@
 	                <div class="item kKOtfr" data-reactid="195">
 	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?module=notice&action=form&type=good&groupKey=${group }">立即创建</a></h3>
 	               		<c:if test="${empty goodNotices[group] }">
-	               			<p>
-		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
-	               			</p>
+	               			<p><span class="fgqZDe">暂无记录</span></p>
 	               		</c:if>
 	               		<c:if test="${not empty goodNotices[group] }">
 		               		<ul>
@@ -146,7 +145,7 @@
 	                	<h3 class="item-title jPzqaA" data-reactid="189">待改善Code <a href="?module=notice&action=form&type=bad&groupKey=${group }">立即创建</a></h3>
 	                	<c:if test="${empty badNotices[group] }">
 	               			<p>
-		               			<span class="fgqZDe">您还没创建任何信息哟！</span>
+		               			<span class="fgqZDe">暂无记录</span>
 	               			</p>
 	               		</c:if>
 	               		<c:if test="${not empty badNotices[group] }">
