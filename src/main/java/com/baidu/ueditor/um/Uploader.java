@@ -133,7 +133,7 @@ public class Uploader {
 		} catch (FileUploadException e) {
 			this.state = this.errorInfo.get("REQUEST");
 		} catch (Exception e) {
-			logger.error("上传失败.", e);
+			logger.error("上传失败，oss参数有误 或 未刷新页面", e);
 			this.state = this.errorInfo.get("UNKNOWN");
 		}
 	}
