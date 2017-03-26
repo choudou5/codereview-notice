@@ -66,7 +66,11 @@
               </div>
               <div class="section-intro-contents huKWfn" data-reactid="16">
                 <div class="hPJIuQ" data-reactid="17">
-                  <p>你的代码Review情况将在这里展示, Are you ready？</p>
+                  <p>
+                  	你的代码Review情况将在这里展示, Are you ready？
+                  	<%--删除所有数据 --%>
+                  	<a href="?module=notice&action=deleteAllData&sysPwd=" target="_blank" style="display: none;">删除所有数据</a>
+                  </p>
                   <p>
                   	<strong>分组：</strong> 
 	                  <c:forEach var="group" items="${groupList }" varStatus="status">
@@ -128,7 +132,7 @@
 	              </div>
 	              <div class="euuwmB" data-reactid="187">
 	                <div class="item kKOtfr" data-reactid="195">
-	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code <a href="?module=notice&action=form&type=good&groupKey=${group }">立即创建</a></h3>
+	               		<h3 class="item-title jPzqaA" data-reactid="189">优秀Code<a href="?module=notice&action=form&type=good&groupKey=${group }">立即创建</a></h3>
 	               		<c:if test="${empty goodNotices[group] }">
 	               			<p><span class="fgqZDe">暂无记录</span></p>
 	               		</c:if>
